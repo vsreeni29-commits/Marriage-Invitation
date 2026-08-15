@@ -1,1 +1,194 @@
-# Marriage-Invitation
+# Rinsha & Sreeni — Wedding Invitation
+
+An interactive invitation for the wedding reception of **Rinsha & Sreeni**,
+Thursday 17 September 2026, at Sree Gupta Bhavan – SgB, Chennai.
+
+Two families, two states and two traditions meet here: Rinsha's Muslim family
+from Kerala, Sreeni's Hindu family from Tamil Nadu. The site is built around
+that idea rather than decorated with it — a Tamil kolam line and a geometric
+star ornament begin apart, travel toward each other, and resolve into a single
+emblem that belongs to neither tradition alone. That emblem then carries the
+rest of the invitation.
+
+**Live:** https://vsreeni29-commits.github.io/Marriage-Invitation/
+
+---
+
+## Quick start
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # production build into dist/
+npm run preview    # serve the built site locally
+npm run typecheck  # TypeScript, no emit
+```
+
+Node 20 or newer.
+
+---
+
+## Deployment
+
+### GitHub Pages (current)
+
+`.github/workflows/deploy.yml` builds and publishes on every push to `main`.
+
+One-time setup, in the repository: **Settings → Pages → Build and deployment →
+Source: GitHub Actions**. The first push to `main` after that publishes to
+`https://<user>.github.io/Marriage-Invitation/`.
+
+The base path matters on Pages, because the site is served from a subdirectory.
+It defaults to `/Marriage-Invitation/` and is set in `vite.config.ts`, and the
+workflow passes it explicitly as `VITE_BASE`.
+
+### Custom domain, later
+
+When the domain is ready:
+
+1. **Build at the root path.** Set `VITE_BASE: /` in the workflow (or run
+   `VITE_BASE=/ npm run build`).
+2. **Point the domain at the host.** On Pages: add the domain under
+   Settings → Pages, and add a `public/CNAME` file containing just the domain so
+   it survives redeploys.
+3. **Update the canonical and preview URLs**, which are absolute and cannot be
+   inferred at build time:
+   - `src/config/weddingConfig.ts` → `site.url`
+   - `index.html` → `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image`
+
+   `og:image` **must** be an absolute `https://` URL or WhatsApp will not show
+   the preview card.
+
+### Vercel / Netlify
+
+Both work with no configuration beyond the base path: build command
+`npm run build`, publish directory `dist`, and an environment variable
+`VITE_BASE=/` (these hosts serve from the root). Then update the three URLs
+above.
+
+---
+
+## What's in it
+
+| Section | What it does |
+| --- | --- |
+| **Opening** | Kolam and geometric star draw in from opposite sides, converge, and become the emblem. Ends in a choice: *Enter With Music ♪* or *Enter Quietly*. Plays once per session. |
+| **Hero** | Names inside an arch, drifting jasmine, the date, and a scroll cue. |
+| **Invitation** | The written invitation, and the two journeys becoming one. |
+| **Two Roots. One Story.** | Rinsha/Kerala and Sreeni/Tamil Nadu as two cards, joined by an ornamental thread that grows as you scroll. |
+| **Where the Patterns Meet** | The signature morph: kolam → geometry → bloom → emblem, driven by scroll position, with a four-part narration. |
+| **A Date Worth Remembering** | Scratch the kasavu-gold foil (mouse, touch or pen). Auto-completes at 55%. *Reveal Date* does the same in one tap. |
+| **Countdown** | Live countdown to 6:00 PM IST, correct from any timezone. Hands over to a celebration message at zero, and a keepsake line afterwards. |
+| **Reception** | Date, time, venue, and *Add to Calendar* (`.ics` download + a Google Calendar link). |
+| **Venue** | Illustrated map card and a *Get Directions* button straight to Google Maps. |
+| **Blessing Garden** | Guests leave a message; each one becomes a jasmine bloom in a shared garden, with the words readable underneath. |
+| **RSVP** | Yes/no, name, a guest-count stepper, an optional note, validation, loading and success states. |
+| **Closing** | Thanks, the emblem, and *அன்புடன் · സ്നേഹത്തോടെ · With Love*. |
+
+Plus a persistent music toggle, a share button, a scroll-progress rule and a
+small floating menu.
+
+---
+
+## Editing the details
+
+Everything about the event lives in **`src/config/weddingConfig.ts`** — names,
+date, times, timezone, venue, maps link, and the metadata used for sharing.
+Nothing in `src/components` hardcodes any of it. Change it there and it changes
+everywhere, including the calendar file and the structured data.
+
+If you change the date or venue, also update the copies that cannot read from
+TypeScript: the `<noscript>` block and the JSON-LD in `index.html`.
+
+**Photographs** go in `public/images/` and are wired up in
+`src/config/media.ts` — see `public/images/README.md`. Until then the site uses
+its own illustration rather than stock photographs of other people.
+
+**Music** is generated in the browser by default; drop a file in `public/audio/`
+to use a real recording instead. See `public/audio/README.md`.
+
+**The share image** is regenerated with `node scripts/generate-og.mjs`
+(needs `npm i -D sharp` and the Cormorant Garamond / Inter fonts installed
+locally). The committed PNG is fine as-is unless the artwork changes.
+
+---
+
+## Architecture
+
+```
+src/
+  components/          one file per section, plus ornaments/ and ui/
+    ornaments/         the entire decorative vocabulary, drawn in SVG
+    ui/                Section wrapper, ErrorBoundary
+  config/              weddingConfig.ts (source of truth), media.ts (image slots)
+  context/             MusicContext — owns the single audio instance
+  hooks/               useCountdown, useReveal, useScrollProgress, useReducedMotion
+  services/            persistence behind an interface, + the audio engine
+  styles/              tokens.css, base.css, sections.css
+  utils/               geometry.ts, calendar.ts, share.ts
+scripts/               generate-og.mjs
+public/                og-image.png, favicons, images/, audio/
+```
+
+**Stack:** React 18 + TypeScript + Vite. No UI framework, no animation library,
+no state library — the whole thing is ~64 KB of gzipped JavaScript and one CSS
+file. Animation is CSS plus `IntersectionObserver`, and scroll-linked motion is
+a `requestAnimationFrame`-throttled measurement, so nothing fights the guest for
+control of the page.
+
+### Connecting a real backend
+
+RSVPs and blessings currently persist to the guest's own browser, which is
+enough to share the invitation today. The UI talks only to the interfaces in
+`src/services/types.ts`, so going live means writing one adapter and changing
+two lines in `src/services/index.ts`:
+
+```ts
+export const blessingService: BlessingService = createSupabaseBlessingService(supabase);
+export const rsvpService: RsvpService = createRestRsvpService('/api/rsvp');
+```
+
+Same method signatures, same `ServiceError` — no component changes. Keep
+credentials out of the client: use a serverless function, or a publishable key
+with row-level security.
+
+---
+
+## Accessibility
+
+Built in from the start, not retrofitted:
+
+- Semantic landmarks, one `h1`, a correct heading order, and a skip link.
+- Everything reachable and operable by keyboard; visible focus throughout.
+- The scratch card is an enhancement — the date sits in the DOM underneath it,
+  so it is readable by screen readers and selectable, and *Reveal Date* is a
+  one-tap equivalent.
+- All decorative SVG is `aria-hidden`; the countdown exposes a readable
+  sentence instead of four separate numbers.
+- Forms have real labels, `aria-invalid`, and errors announced politely.
+- `prefers-reduced-motion` removes drifting petals, the opening animation, the
+  route and pulse loops, and lays the morph narration out as plain text.
+- Tap targets are at least 44–48 px; the layout holds from 320 px to 2560 px.
+
+## Privacy
+
+No analytics, no tracking pixels, no advertising scripts, no cookies, no
+embedded third-party map frame. The only external requests are to Google Fonts.
+Guest messages and RSVPs stay in the guest's own browser until a backend is
+connected.
+
+## Progressive enhancement
+
+The names, date, time, venue and directions are plain markup in their own
+sections — an `ErrorBoundary` around each interactive piece means a failure in
+the scratch card, the garden or the countdown costs a guest nothing they came
+for. With JavaScript disabled entirely, the `<noscript>` block in `index.html`
+still gives the essentials and a working directions link.
+
+## Browser support
+
+Tested on Chromium (desktop and emulated Android), at 320 px, 390 px, 740 px
+landscape, 1280 px and 2560 px. Uses Pointer Events, `IntersectionObserver`,
+`clamp()` and the Web Audio API — all supported in current Chrome, Safari,
+Firefox and Edge, with fallbacks where a feature may be blocked (clipboard,
+Web Share, canvas, `localStorage`, audio).
