@@ -769,7 +769,8 @@
 
 .fusion__captions {
   position: relative;
-  min-height: 9rem;
+  /* Tall enough for the longest caption, so crossfading pairs never overlap. */
+  min-height: 13rem;
 }
 
 .fusion__caption {
