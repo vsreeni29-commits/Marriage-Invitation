@@ -18,7 +18,8 @@ recolourable from `src/styles/tokens.css`.
 | Kasavu foil on the scratch card (canvas)      | `src/components/DateScratchReveal.tsx`   |
 | Illustrated venue map                         | `src/components/Venue.tsx`               |
 | Colour, type and spacing tokens               | `src/styles/tokens.css`                  |
-| Background music (generated)                  | `src/services/audioEngine.ts`            |
+| Background music — the score                  | `src/services/composition.ts`            |
+| Background music — the synthesis              | `src/services/audioEngine.ts`            |
 
 ## Files that *are* assets
 

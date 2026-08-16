@@ -1,24 +1,42 @@
 /**
- * Background ambience.
+ * Background music.
  *
  * Two sources, one interface:
  *
  *  1. A real audio file, if `media.audio.src` points at one. Drop a
  *     royalty-free instrumental into `public/audio/` and set the slot.
- *  2. Otherwise a small generated ambience — a warm, slow arpeggio over a
- *     soft drone, written with the Web Audio API. It is original, weighs
- *     nothing, loops forever, and is deliberately neutral: no ceremony
- *     motifs from either tradition, just flute-like tones on a scale that
- *     Carnatic and Hindustani music share.
+ *  2. Otherwise the piece is generated in the browser with the Web Audio API:
+ *     a plucked veena carrying the tune, a soft flute above it, gentle hand
+ *     percussion keeping the pulse, and a tanpura-style drone underneath.
+ *     Original, weightless, and it loops without a seam.
+ *
+ * The score lives in `./composition.ts`. This file only makes the sound.
  *
  * Either way the controller fades in and out — audio never snaps on.
  */
+
+import {
+  BEAT,
+  BEATS_PER_BAR,
+  CHORDS,
+  DRUM_FILL,
+  DRUM_FIRST_BAR,
+  DRUM_LAST_BAR,
+  DRUM_PATTERN,
+  FLUTE,
+  ROOT,
+  TOTAL_BARS,
+  TOTAL_BEATS,
+  VEENA,
+  semitone,
+  type DrumStroke,
+} from './composition';
 
 export interface AmbientController {
   play(): Promise<void>;
   pause(): void;
   dispose(): void;
-  /** True when the generated ambience is being used instead of a file. */
+  /** True when the generated piece is being used instead of a file. */
   usingFallback(): boolean;
 }
 
@@ -36,115 +54,98 @@ function getAudioContextCtor(): AudioContextCtor | null {
 }
 
 /* ------------------------------------------------------------------ *
- * Generated ambience
+ * The generated piece
  * ------------------------------------------------------------------ */
 
-/**
- * An original instrumental, written for this invitation.
- *
- * The mood is the one Malayalam romance soundtracks live in — unhurried, a
- * little nostalgic, a flute carrying the tune over softly plucked strings —
- * but the melody is composed here from scratch, so nothing is borrowed from
- * any recording.
- *
- * Semitones are relative to the root, D. The scale is Mohanam / Bhoopali:
- * the same five notes in Carnatic and Hindustani music, which is about as
- * close to shared cultural ground as a scale gets.
- */
-const ROOT = 293.66; // D4
-
-const semitone = (steps: number) => ROOT * Math.pow(2, steps / 12);
-
-/** [semitone, beats] — a rest is `null`. Written in a gentle 6/8 lilt. */
-type Note = [number | null, number];
-
-/**
- * Two sections of fourteen bars each.
- *
- * A: a statement, its answer, a lift, and a resolution home.
- * B: a lower, gentler restatement that climbs once before settling.
- *
- * Both end on the root, so the loop closes without a seam, and on alternate
- * passes the highest phrases drop an octave — the tune comes back changed,
- * which is what keeps eighty seconds of background music from nagging.
- */
-const MELODY: Note[] = [
-  // — A —
-  [7, 1.5], [9, 0.75], [7, 0.75], [4, 1.5], [2, 1.5],
-  [4, 0.75], [7, 0.75], [4, 1.5], [null, 1.5],
-  [4, 1.5], [7, 0.75], [9, 0.75], [12, 1.5], [9, 1.5],
-  [7, 0.75], [4, 0.75], [2, 1.5], [null, 1.5],
-  [9, 1.5], [12, 0.75], [14, 0.75], [16, 2.25], [14, 0.75],
-  [12, 1.5], [9, 1.5], [7, 1.5], [null, 0.75],
-  [7, 0.75], [9, 0.75], [7, 0.75], [4, 1.5], [2, 0.75], [0, 2.25],
-  [null, 3],
-  // — B —
-  [0, 1.5], [2, 0.75], [4, 0.75], [7, 1.5],
-  [4, 1.5], [2, 0.75], [0, 0.75], [null, 1.5],
-  [2, 1.5], [4, 0.75], [7, 0.75], [9, 1.5],
-  [7, 1.5], [4, 0.75], [2, 0.75], [null, 1.5],
-  [4, 1.5], [7, 0.75], [9, 0.75], [12, 1.5],
-  [9, 1.5], [7, 0.75], [4, 0.75], [null, 1.5],
-  [2, 1.5], [4, 1.5], [7, 1.5],
-  [9, 2.25], [7, 0.75], [4, 1.5],
-  [2, 0.75], [0, 1.5], [null, 2.25],
-  [null, 1.5],
-];
-
-/**
- * One chord per bar of three beats, as offsets from the root — twenty-eight
- * bars, exactly matching the melody, so the two never drift apart.
- */
-const CHORDS: number[][] = [
-  // — A —
-  [0, 7, 16], [0, 7, 16], [-3, 4, 12], [-3, 4, 12],
-  [-5, 2, 9], [-5, 2, 9], [0, 7, 16], [0, 7, 16],
-  [-3, 4, 12], [-3, 4, 12], [-5, 2, 9], [-5, 2, 9],
-  [2, 9, 14], [0, 7, 12],
-  // — B —
-  [-5, 2, 9], [-5, 2, 9], [0, 7, 12], [0, 7, 12],
-  [-3, 4, 12], [-3, 4, 12], [-5, 2, 9], [-5, 2, 9],
-  [0, 7, 16], [0, 7, 16], [2, 9, 14], [2, 9, 14],
-  [0, 7, 12], [0, 7, 12],
-];
-
-/** Beats in one full pass — used to know when a variation should begin. */
-const CYCLE_BEATS = MELODY.reduce((sum, [, beats]) => sum + beats, 0);
-
-const BEAT = 0.46; // seconds — unhurried
+/** Where each voice has got to, in beats since the piece began. */
+interface VoiceCursor {
+  index: number;
+  beat: number;
+}
 
 class GeneratedAmbience {
   private ctx: AudioContext;
   private master: GainNode;
+  private reverb: GainNode;
+
+  private veenaWave: PeriodicWave;
+  private noise: AudioBuffer;
+
   private drone: GainNode | null = null;
   private timer: number | null = null;
-  private nextNoteAt = 0;
-  private step = 0;
-  private beat = 0;
   private disposed = false;
+
+  /** Audio-clock time of beat zero. */
+  private origin = 0;
+  private veenaAt: VoiceCursor = { index: 0, beat: 0 };
+  private fluteAt: VoiceCursor = { index: 0, beat: 0 };
+  private barAt = 0;
+  private lastVeenaPitch: number | null = null;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
+
     this.master = ctx.createGain();
     this.master.gain.value = 0;
 
     const warmth = ctx.createBiquadFilter();
     warmth.type = 'lowpass';
-    warmth.frequency.value = 2600;
+    warmth.frequency.value = 3200;
     warmth.Q.value = 0.4;
 
     this.master.connect(warmth);
     warmth.connect(ctx.destination);
+
+    // A short tail so plucks bloom into the room instead of stopping dead.
+    this.reverb = ctx.createGain();
+    this.reverb.gain.value = 0.24;
+    const tail = ctx.createConvolver();
+    tail.buffer = this.buildTail();
+    this.reverb.connect(tail);
+    tail.connect(this.master);
+
+    this.veenaWave = this.buildVeenaWave();
+    this.noise = this.buildNoise();
+  }
+
+  /**
+   * A plucked string's harmonics, baked into one oscillator: far cheaper than
+   * stacking six of them per note, and it is what gives the veena its bite.
+   */
+  private buildVeenaWave(): PeriodicWave {
+    const harmonics = [0, 1, 0.5, 0.34, 0.22, 0.16, 0.1, 0.07, 0.04, 0.03];
+    const real = new Float32Array(harmonics.length);
+    const imag = new Float32Array(harmonics);
+    return this.ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+  }
+
+  /** Exponentially decaying noise — a small, cheap room. */
+  private buildTail(): AudioBuffer {
+    const length = Math.floor(this.ctx.sampleRate * 1.6);
+    const buffer = this.ctx.createBuffer(2, length, this.ctx.sampleRate);
+    for (let channel = 0; channel < 2; channel += 1) {
+      const data = buffer.getChannelData(channel);
+      for (let i = 0; i < length; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 3.2);
+      }
+    }
+    return buffer;
+  }
+
+  private buildNoise(): AudioBuffer {
+    const length = Math.floor(this.ctx.sampleRate * 0.4);
+    const buffer = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+    return buffer;
   }
 
   private startDrone() {
     if (this.drone) return;
     const bed = this.ctx.createGain();
-    bed.gain.value = 0.03;
+    bed.gain.value = 0.028;
     bed.connect(this.master);
 
-    // Root only — a tanpura-style Sa that sits under every chord without
-    // arguing with any of them.
     [ROOT / 2, ROOT / 4].forEach((freq, index) => {
       const osc = this.ctx.createOscillator();
       osc.type = 'sine';
@@ -154,10 +155,10 @@ class GeneratedAmbience {
       const lfo = this.ctx.createOscillator();
       lfo.type = 'sine';
       lfo.frequency.value = 0.05 + index * 0.017;
-      const lfoDepth = this.ctx.createGain();
-      lfoDepth.gain.value = 0.9;
-      lfo.connect(lfoDepth);
-      lfoDepth.connect(osc.detune);
+      const depth = this.ctx.createGain();
+      depth.gain.value = 0.9;
+      lfo.connect(depth);
+      depth.connect(osc.detune);
 
       osc.connect(bed);
       osc.start();
@@ -168,10 +169,48 @@ class GeneratedAmbience {
   }
 
   /**
-   * The lead: a breathy flute. A triangle wave for the body, a quiet octave
-   * above for air, a touch of vibrato once the note has settled, and a soft
-   * attack so nothing ever sounds struck.
+   * The veena: a hard pluck whose harmonics die away faster than its
+   * fundamental, so the tone darkens as it rings. `slideFrom` produces the
+   * short glide between notes that makes a veena sound like a veena rather
+   * than a harp.
    */
+  private veena(freq: number, at: number, duration: number, level: number, slideFrom?: number) {
+    const osc = this.ctx.createOscillator();
+    osc.setPeriodicWave(this.veenaWave);
+
+    if (slideFrom && slideFrom > 0) {
+      osc.frequency.setValueAtTime(slideFrom, at);
+      osc.frequency.exponentialRampToValueAtTime(freq, at + Math.min(0.09, duration * 0.4));
+    } else {
+      // Even a straight note starts a shade sharp: the string is stretched.
+      osc.frequency.setValueAtTime(freq * 1.008, at);
+      osc.frequency.exponentialRampToValueAtTime(freq, at + 0.05);
+    }
+
+    // Strings ring on past the note they are written as.
+    const ring = Math.max(1.1, duration * 2.4);
+
+    const env = this.ctx.createGain();
+    env.gain.setValueAtTime(0.0001, at);
+    env.gain.exponentialRampToValueAtTime(level, at + 0.006);
+    env.gain.exponentialRampToValueAtTime(0.0001, at + ring);
+
+    const tone = this.ctx.createBiquadFilter();
+    tone.type = 'lowpass';
+    tone.frequency.setValueAtTime(4600, at);
+    tone.frequency.exponentialRampToValueAtTime(760, at + ring * 0.8);
+    tone.Q.value = 0.6;
+
+    osc.connect(env);
+    env.connect(tone);
+    tone.connect(this.master);
+    tone.connect(this.reverb);
+
+    osc.start(at);
+    osc.stop(at + ring + 0.05);
+  }
+
+  /** The flute: breathy, slow to speak, with vibrato that arrives late. */
   private flute(freq: number, at: number, duration: number, level: number) {
     const osc = this.ctx.createOscillator();
     osc.type = 'triangle';
@@ -181,35 +220,35 @@ class GeneratedAmbience {
     air.type = 'sine';
     air.frequency.value = freq * 2;
     const airGain = this.ctx.createGain();
-    airGain.gain.value = level * 0.13;
+    airGain.gain.value = level * 0.12;
 
-    // Vibrato fades in, the way a player leans into a held note.
     const vibrato = this.ctx.createOscillator();
     vibrato.type = 'sine';
-    vibrato.frequency.value = 4.6;
+    vibrato.frequency.value = 4.8;
     const vibratoDepth = this.ctx.createGain();
     vibratoDepth.gain.setValueAtTime(0, at);
-    vibratoDepth.gain.linearRampToValueAtTime(5, at + Math.min(0.6, duration * 0.7));
+    vibratoDepth.gain.linearRampToValueAtTime(6, at + Math.min(0.9, duration * 0.6));
     vibrato.connect(vibratoDepth);
     vibratoDepth.connect(osc.detune);
 
     const env = this.ctx.createGain();
     env.gain.setValueAtTime(0.0001, at);
-    env.gain.exponentialRampToValueAtTime(level, at + 0.14);
-    env.gain.setValueAtTime(level, at + duration * 0.55);
-    env.gain.exponentialRampToValueAtTime(0.0001, at + duration + 0.5);
+    env.gain.exponentialRampToValueAtTime(level, at + 0.22);
+    env.gain.setValueAtTime(level, at + duration * 0.7);
+    env.gain.exponentialRampToValueAtTime(0.0001, at + duration + 0.45);
 
     const tone = this.ctx.createBiquadFilter();
     tone.type = 'lowpass';
-    tone.frequency.value = 2400;
+    tone.frequency.value = 2300;
 
     osc.connect(env);
     air.connect(airGain);
     airGain.connect(env);
     env.connect(tone);
     tone.connect(this.master);
+    tone.connect(this.reverb);
 
-    const stopAt = at + duration + 0.7;
+    const stopAt = at + duration + 0.6;
     osc.start(at);
     air.start(at);
     vibrato.start(at);
@@ -218,62 +257,126 @@ class GeneratedAmbience {
     vibrato.stop(stopAt);
   }
 
-  /** The accompaniment: a plucked string, short and warm. */
-  private pluck(freq: number, at: number, level: number) {
-    const osc = this.ctx.createOscillator();
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-
-    const env = this.ctx.createGain();
-    env.gain.setValueAtTime(0.0001, at);
-    env.gain.exponentialRampToValueAtTime(level, at + 0.02);
-    env.gain.exponentialRampToValueAtTime(0.0001, at + 2.6);
-
-    const tone = this.ctx.createBiquadFilter();
-    tone.type = 'lowpass';
-    tone.frequency.setValueAtTime(2200, at);
-    tone.frequency.exponentialRampToValueAtTime(520, at + 2.2);
-
-    osc.connect(env);
-    env.connect(tone);
-    tone.connect(this.master);
-
-    osc.start(at);
-    osc.stop(at + 2.9);
+  /** A quiet plucked chord tone, filling the space under the melody. */
+  private accompany(freq: number, at: number, level: number) {
+    this.veena(freq, at, 0.9, level);
   }
 
   /**
-   * Schedules ahead of the clock in small batches, so the piece plays in time
-   * without holding a timer per note.
+   * Hand percussion. The low stroke is a pitched thump — the way a palm on a
+   * drum head bends the pitch downward — and the taps are short filtered
+   * noise, kept well back in the mix.
+   */
+  private drum(stroke: DrumStroke, at: number) {
+    if (stroke === 'low') {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(132, at);
+      osc.frequency.exponentialRampToValueAtTime(64, at + 0.09);
+
+      const env = this.ctx.createGain();
+      env.gain.setValueAtTime(0.0001, at);
+      env.gain.exponentialRampToValueAtTime(0.09, at + 0.006);
+      env.gain.exponentialRampToValueAtTime(0.0001, at + 0.42);
+
+      osc.connect(env);
+      env.connect(this.master);
+      osc.start(at);
+      osc.stop(at + 0.46);
+      return;
+    }
+
+    const source = this.ctx.createBufferSource();
+    source.buffer = this.noise;
+
+    const band = this.ctx.createBiquadFilter();
+    band.type = 'bandpass';
+    band.frequency.value = stroke === 'mid' ? 1400 : 2600;
+    band.Q.value = stroke === 'mid' ? 1.6 : 3.2;
+
+    const level = stroke === 'mid' ? 0.05 : 0.028;
+    const length = stroke === 'mid' ? 0.14 : 0.06;
+
+    const env = this.ctx.createGain();
+    env.gain.setValueAtTime(0.0001, at);
+    env.gain.exponentialRampToValueAtTime(level, at + 0.004);
+    env.gain.exponentialRampToValueAtTime(0.0001, at + length);
+
+    source.connect(band);
+    band.connect(env);
+    env.connect(this.master);
+    env.connect(this.reverb);
+
+    source.start(at);
+    source.stop(at + length + 0.05);
+  }
+
+  /* --- scheduling ------------------------------------------------- */
+
+  private timeAt(beat: number): number {
+    return this.origin + beat * BEAT;
+  }
+
+  /**
+   * Each voice keeps its own place in the score and is scheduled a couple of
+   * seconds ahead of the clock, so the parts stay locked together without a
+   * timer per note.
    */
   private schedule = () => {
     if (this.disposed) return;
     const horizon = this.ctx.currentTime + 2.5;
+    const floor = this.ctx.currentTime + 0.04;
 
-    while (this.nextNoteAt < horizon) {
-      const at = Math.max(this.nextNoteAt, this.ctx.currentTime + 0.05);
-      const [pitch, beats] = MELODY[this.step % MELODY.length];
-      const span = beats * BEAT;
-
-      // Every second pass, the highest phrases sound an octave lower.
-      const secondPass = Math.floor(this.beat / CYCLE_BEATS) % 2 === 1;
+    // Veena — the tune.
+    while (this.timeAt(this.veenaAt.beat) < horizon) {
+      const [pitch, beats] = VEENA[this.veenaAt.index % VEENA.length];
+      const at = Math.max(this.timeAt(this.veenaAt.beat), floor);
 
       if (pitch !== null) {
-        const sounded = secondPass && pitch >= 12 ? pitch - 12 : pitch;
-        this.flute(semitone(sounded), at, span * 0.92, 0.13);
+        const leap = this.lastVeenaPitch !== null && Math.abs(pitch - this.lastVeenaPitch) >= 3;
+        this.veena(
+          semitone(pitch),
+          at,
+          beats * BEAT,
+          0.105,
+          leap ? semitone(this.lastVeenaPitch as number) : undefined,
+        );
+        this.lastVeenaPitch = pitch;
+      } else {
+        this.lastVeenaPitch = null;
       }
 
-      // The chord bed rolls underneath, one voice at a time, like a strum.
-      if (Math.floor(this.beat) % 3 === 0) {
-        const bar = Math.floor((this.beat % CYCLE_BEATS) / 3) % CHORDS.length;
-        CHORDS[bar].forEach((offset, voice) => {
-          this.pluck(semitone(offset - 12), at + voice * 0.09, 0.055);
-        });
+      this.veenaAt.beat += beats;
+      this.veenaAt.index += 1;
+    }
+
+    // Flute — the line above.
+    while (this.timeAt(this.fluteAt.beat) < horizon) {
+      const [pitch, beats] = FLUTE[this.fluteAt.index % FLUTE.length];
+      const at = Math.max(this.timeAt(this.fluteAt.beat), floor);
+
+      if (pitch !== null) this.flute(semitone(pitch), at, beats * BEAT * 0.94, 0.062);
+
+      this.fluteAt.beat += beats;
+      this.fluteAt.index += 1;
+    }
+
+    // Chords and percussion, a bar at a time.
+    while (this.timeAt(this.barAt * BEATS_PER_BAR) < horizon) {
+      const barStart = Math.max(this.timeAt(this.barAt * BEATS_PER_BAR), floor);
+      const barInPiece = this.barAt % TOTAL_BARS;
+
+      CHORDS[barInPiece].forEach((offset, voice) => {
+        this.accompany(semitone(offset - 12), barStart + voice * 0.075, 0.028);
+      });
+
+      if (barInPiece >= DRUM_FIRST_BAR && barInPiece <= DRUM_LAST_BAR) {
+        const strokes =
+          barInPiece % 4 === 3 ? [...DRUM_PATTERN, ...DRUM_FILL] : DRUM_PATTERN;
+        strokes.forEach(({ at, stroke }) => this.drum(stroke, barStart + at * BEAT));
       }
 
-      this.nextNoteAt = at + span;
-      this.beat += beats;
-      this.step += 1;
+      this.barAt += 1;
     }
   };
 
@@ -282,19 +385,23 @@ class GeneratedAmbience {
       await this.ctx.resume().catch(() => undefined);
     }
     this.startDrone();
-    // Resuming after a pause: never schedule into the past, or the backlog
-    // would all fire at once.
-    if (this.nextNoteAt < this.ctx.currentTime) {
-      this.nextNoteAt = this.ctx.currentTime + 0.2;
+
+    // Starting, or resuming after a pause: re-anchor the clock so nothing is
+    // scheduled into the past and the whole backlog fires at once.
+    const nextBeat = Math.min(this.veenaAt.beat, this.fluteAt.beat, this.barAt * BEATS_PER_BAR);
+    if (this.timeAt(nextBeat) < this.ctx.currentTime) {
+      this.origin = this.ctx.currentTime + 0.25 - nextBeat * BEAT;
     }
+
     if (this.timer === null) {
       this.schedule();
       this.timer = window.setInterval(this.schedule, 700);
     }
+
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(Math.max(this.master.gain.value, 0.0001), now);
-    this.master.gain.linearRampToValueAtTime(0.72, now + FADE_SECONDS);
+    this.master.gain.linearRampToValueAtTime(0.68, now + FADE_SECONDS);
   }
 
   pause() {
@@ -381,7 +488,7 @@ export function createAmbience(src: string | null): AmbientController {
           fadeElement(0.55);
           return;
         } catch {
-          // Autoplay refused or decode failed — fall through to generated audio.
+          // Autoplay refused or decode failed — fall through to the generated piece.
           element = null;
         }
       }
@@ -404,3 +511,6 @@ export function createAmbience(src: string | null): AmbientController {
     usingFallback: () => fallback,
   };
 }
+
+/** Exposed for the offline renderer in scripts/preview-music.mjs. */
+export const compositionLength = TOTAL_BEATS * BEAT;

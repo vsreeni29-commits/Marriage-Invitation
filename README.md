@@ -104,22 +104,32 @@ TypeScript: the `<noscript>` block and the JSON-LD in `index.html`.
 `src/config/media.ts` — see `public/images/README.md`. Until then the site uses
 its own illustration rather than stock photographs of other people.
 
-**Music** is an original instrumental generated in the browser — a flute melody
-over plucked strings and a soft drone, on the Mohanam / Bhoopali scale shared by
-Carnatic and Hindustani music. Two sections, twenty-eight bars, and the highest
-phrases drop an octave on alternate passes, so a full cycle runs about eighty
-seconds before it repeats exactly.
+**Music** is an original instrumental generated in the browser: a plucked veena
+carrying the tune, a soft flute in long tones above it, gentle hand percussion
+keeping the pulse, and a tanpura-style drone underneath. The scale is Mohanam /
+Bhoopali, shared by Carnatic and Hindustani music. Two sections, twenty-eight
+bars, 131 notes in the veena line — a full cycle runs about thirty-nine seconds
+and loops without a seam.
+
+- **The score** is `src/services/composition.ts` — notes, chords, drum pattern.
+  Every voice sums to the same 84 beats, so the parts can never drift apart.
+- **The synthesis** is `src/services/audioEngine.ts`. The veena is a single
+  oscillator using a `PeriodicWave` built from a plucked string's harmonic
+  series, with a filter that closes as the note rings, so the tone darkens the
+  way a real string does. Notes that leap glide into pitch — the gamaka that
+  makes it sound like a veena rather than a harp.
 
 To hear it outside a browser:
 
 ```bash
-node scripts/preview-music.mjs preview.wav      # 22 kHz, small
-PREVIEW_RATE=44100 node scripts/preview-music.mjs preview.wav
+node scripts/preview-music.mjs preview.wav          # 22 kHz, small
+PREVIEW_RATE=44100 PREVIEW_LOOPS=3 node scripts/preview-music.mjs preview.wav
 ```
 
-That script is an offline reimplementation of `src/services/audioEngine.ts` —
-same melody, same envelopes — kept in sync by hand. **If you edit the melody or
-chords in one file, copy them to the other.**
+That script reads the score straight out of `composition.ts`, so the notes can
+never drift from the site; only the synthesis is duplicated, and it mirrors the
+engine closely enough that the offline render and the browser measure within a
+few percent of each other.
 
 To use a real recording instead, drop a licensed file in `public/audio/` and
 point `media.audio.src` at it; see `public/audio/README.md`. The generated
