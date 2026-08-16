@@ -1,0 +1,25 @@
+/**
+ * Where RSVPs and blessings are stored.
+ *
+ * Leave `sheetsEndpoint` as `null` and everything stays in the guest's own
+ * browser — useful for local development and for sharing a preview.
+ *
+ * To send responses to a Google Sheet, follow "Connecting the Google Sheet"
+ * in the README, then paste the deployed Web App URL below.
+ *
+ * A note on the secret: this value ships to the browser, so anyone who views
+ * source can read it. It is a spam deterrent — it stops a bot that stumbles on
+ * the endpoint — not a security control. The real protection is that the
+ * endpoint can only ever append rows to two tabs of one spreadsheet, and the
+ * Apps Script clamps and truncates everything it is given.
+ */
+export const backend = {
+  /** e.g. 'https://script.google.com/macros/s/AKfy…/exec' */
+  sheetsEndpoint: null as string | null,
+
+  /** Must match SHARED_SECRET in scripts/apps-script/Code.gs. */
+  sharedSecret: 'CHANGE-ME-TO-A-LONG-RANDOM-STRING',
+
+  /** Give up on a slow network rather than leaving a guest watching a spinner. */
+  timeoutMs: 12000,
+};

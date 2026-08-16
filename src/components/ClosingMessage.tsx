@@ -26,8 +26,8 @@ export function ClosingMessage() {
           thank you for being part of ours.
         </h2>
 
-        <p className="closing__names">
-          {couple.bride} <span aria-hidden="true">&amp;</span>
+        <p className="closing__names script-name foil">
+          {couple.bride} <span className="amp" aria-hidden="true">&amp;</span>
           <span className="visually-hidden">and</span> {couple.groom}
         </p>
 

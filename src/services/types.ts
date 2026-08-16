@@ -13,7 +13,10 @@ export interface Blessing {
   createdAt: string;
 }
 
-export type BlessingDraft = Omit<Blessing, 'id' | 'createdAt'>;
+export type BlessingDraft = Omit<Blessing, 'id' | 'createdAt'> & {
+  /** Hidden field. If a real guest ever fills this in, they are a robot. */
+  honeypot?: string;
+};
 
 export interface BlessingService {
   list(): Promise<Blessing[]>;
@@ -29,7 +32,10 @@ export interface Rsvp {
   createdAt: string;
 }
 
-export type RsvpDraft = Omit<Rsvp, 'id' | 'createdAt'>;
+export type RsvpDraft = Omit<Rsvp, 'id' | 'createdAt'> & {
+  /** Hidden field. If a real guest ever fills this in, they are a robot. */
+  honeypot?: string;
+};
 
 export interface RsvpService {
   submit(draft: RsvpDraft): Promise<Rsvp>;

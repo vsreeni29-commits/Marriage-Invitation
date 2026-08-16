@@ -43,8 +43,8 @@ export function ReceptionDetails() {
           <Divider />
 
           <p className="reception__note">
-            Dinner, conversations, laughter and a new beginning — we’d love to celebrate it with
-            you.
+            Dinner, long conversations, too many photographs, and the start of something —
+            we’d love you there for all of it.
           </p>
 
           <AddToCalendar className="reception__calendar" />

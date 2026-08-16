@@ -75,14 +75,10 @@ button {
 
 /*
    Cormorant defaults to old-style figures, which turn "17" into something
-   closer to "l7". Dates and counters need lining figures.
+   closer to "l7". Every number on an invitation is a date or a time, so
+   lining figures everywhere.
 */
-.hero__date,
-.scratch__date,
-.countdown__value,
-.closing__date,
-.footer__detail time,
-.reception__row dd {
+body {
   font-variant-numeric: lining-nums;
   font-feature-settings: 'lnum' 1;
 }
@@ -132,6 +128,15 @@ a {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* Bot bait: out of sight, out of the tab order, out of the accessibility tree. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .skip-link {
@@ -403,6 +408,80 @@ textarea.field__control {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* --- The couple's names --------------------------------------------- *
+   Calligraphy is used for exactly one thing — their names — so it stays
+   special and never gets in the way of anything a guest has to read.
+*/
+
+.script-name {
+  font-family: var(--font-script);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  /* Copperplate scripts carry long descenders; give them room. */
+  padding-bottom: 0.12em;
+}
+
+/*
+   Pinyon's own ampersand reads too easily as a letter at display size, so the
+   "&" between the names is always set in the serif italic.
+*/
+.script-name .amp {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.44em;
+  vertical-align: 0.18em;
+  color: var(--gold);
+  -webkit-text-fill-color: var(--gold);
+}
+
+/*
+   Antique-gold leaf with a slow sheen. Guarded by @supports so the text is
+   never invisible if background-clip:text is unavailable.
+*/
+.foil {
+  color: var(--gold);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .foil {
+    background-image: linear-gradient(
+      100deg,
+      #8a6a33 0%,
+      #a9854b 26%,
+      #e2c98f 44%,
+      #f3e6c4 50%,
+      #e2c98f 56%,
+      #a9854b 74%,
+      #8a6a33 100%
+    );
+    background-size: 260% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: foil-sheen 9s var(--ease-soft) infinite;
+  }
+}
+
+@keyframes foil-sheen {
+  0%,
+  62% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foil {
+    animation: none;
+    background-position: 50% 50%;
   }
 }
 

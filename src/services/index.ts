@@ -1,21 +1,29 @@
+import { backend } from '../config/backend';
 import { createLocalBlessingService, createLocalRsvpService } from './localStore';
+import { createSheetsBlessingService, createSheetsRsvpService } from './sheetsStore';
 import type { BlessingService, RsvpService } from './types';
 
 /**
  * The single place where the invitation chooses its backend.
  *
- * Today both services keep data in the guest's browser. To go live with a real
- * store, write an adapter that satisfies `BlessingService` / `RsvpService` and
- * swap the two lines below — for example:
+ * With a Google Sheet endpoint configured in `src/config/backend.ts`, RSVPs
+ * and blessings append rows to the spreadsheet. Without one, everything stays
+ * in the guest's own browser so the site still works — locally, in a preview,
+ * or if the sheet is taken down after the wedding.
  *
- *   export const blessingService = createSupabaseBlessingService(supabase);
+ * Any other backend is one more adapter satisfying the same interfaces:
+ *
  *   export const rsvpService = createRestRsvpService('/api/rsvp');
- *
- * Keep credentials out of the client: use a serverless function or a
- * publishable, row-level-secured key.
  */
 
-export const blessingService: BlessingService = createLocalBlessingService();
-export const rsvpService: RsvpService = createLocalRsvpService();
+const useSheet = Boolean(backend.sheetsEndpoint);
+
+export const blessingService: BlessingService = useSheet
+  ? createSheetsBlessingService()
+  : createLocalBlessingService();
+
+export const rsvpService: RsvpService = useSheet
+  ? createSheetsRsvpService()
+  : createLocalRsvpService();
 
 export * from './types';

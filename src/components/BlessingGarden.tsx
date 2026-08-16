@@ -48,6 +48,7 @@ export function BlessingGarden() {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [loadFailed, setLoadFailed] = useState(false);
   const messageRef = useRef<HTMLTextAreaElement>(null);
@@ -89,7 +90,7 @@ export function BlessingGarden() {
     setStatus('sending');
 
     try {
-      const saved = await blessingService.add({ name, message: trimmed });
+      const saved = await blessingService.add({ name, message: trimmed, honeypot });
       setBlessings((current) => [...current, saved]);
       setName('');
       setMessage('');
@@ -109,7 +110,7 @@ export function BlessingGarden() {
       id="blessings"
       eyebrow="The blessing garden"
       title="Leave Us a Little Love"
-      lead="A wish, a memory, a piece of advice — leave something for us to carry into this new chapter."
+      lead="A wish, a memory, a piece of advice — leave something here for us to carry into this new chapter. Every message becomes a jasmine in the garden below."
     >
       <div className="garden">
         <div
@@ -128,6 +129,19 @@ export function BlessingGarden() {
         </div>
 
         <form className="garden__form card" onSubmit={onSubmit} noValidate>
+          {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
+          <div className="honeypot" aria-hidden="true">
+            <label htmlFor="blessing-website">Leave this empty</label>
+            <input
+              id="blessing-website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(changeEvent) => setHoneypot(changeEvent.target.value)}
+            />
+          </div>
+
           <div className="field">
             <label className="field__label" htmlFor="blessing-name">
               Your name <span className="field__optional">(optional)</span>

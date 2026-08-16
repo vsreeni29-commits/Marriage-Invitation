@@ -5,7 +5,7 @@
  *
  * Uses the same emblem geometry as the site, so the preview card and the
  * invitation are unmistakably the same object. Requires `sharp` and the
- * Cormorant Garamond / Inter fonts installed locally; the generated PNG is
+ * Pinyon Script / Cormorant Garamond / Jost fonts installed locally; the generated PNG is
  * committed, so this only needs re-running when the artwork changes.
  */
 
@@ -134,21 +134,21 @@ const shareSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="$
     )
     .join('')}
 
-  ${emblem(W / 2, 190, 0.86)}
+  ${emblem(W / 2, 178, 0.8)}
 
-  <text x="${W / 2}" y="378" text-anchor="middle" font-family="Cormorant Garamond"
-        font-size="104" fill="#1e3a33">Rinsha <tspan fill="#a9854b" font-style="italic">&amp;</tspan> Sreeni</text>
+  <text x="${W / 2}" y="392" text-anchor="middle" font-family="Pinyon Script"
+        font-size="128" fill="#a9854b">Rinsha <tspan font-family="Cormorant Garamond" font-style="italic" font-size="58">&amp;</tspan> Sreeni</text>
 
-  <text x="${W / 2}" y="432" text-anchor="middle" font-family="Inter" font-size="21"
-        letter-spacing="7" fill="#6b6055">TWO TRADITIONS · TWO CULTURES · ONE BEGINNING</text>
+  <text x="${W / 2}" y="444" text-anchor="middle" font-family="Jost" font-size="21"
+        letter-spacing="8" fill="#6b6055">TWO TRADITIONS · TWO CULTURES · ONE BEGINNING</text>
 
-  <line x1="${W / 2 - 190}" y1="470" x2="${W / 2 + 190}" y2="470" stroke="#a9854b" stroke-opacity="0.4" />
+  <line x1="${W / 2 - 190}" y1="482" x2="${W / 2 + 190}" y2="482" stroke="#a9854b" stroke-opacity="0.4" />
 
-  <text x="${W / 2}" y="524" text-anchor="middle" font-family="Cormorant Garamond"
+  <text x="${W / 2}" y="534" text-anchor="middle" font-family="Cormorant Garamond"
         font-size="50" fill="#6d2b33">17 September 2026</text>
 
-  <text x="${W / 2}" y="566" text-anchor="middle" font-family="Inter" font-size="20"
-        letter-spacing="5" fill="#6b6055">WEDDING RECEPTION · CHENNAI</text>
+  <text x="${W / 2}" y="576" text-anchor="middle" font-family="Jost" font-size="20"
+        letter-spacing="6" fill="#6b6055">WEDDING RECEPTION · CHENNAI</text>
 </svg>`;
 
 /* --- favicon ---------------------------------------------------------- */

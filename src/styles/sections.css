@@ -138,14 +138,8 @@
 
 .entry__names {
   animation-delay: 2.05s;
-  margin-top: var(--space-2xs);
-  font-size: var(--step-4);
-  color: var(--forest);
-}
-
-.entry__amp {
-  color: var(--gold);
-  font-style: italic;
+  margin-top: var(--space-xs);
+  font-size: var(--script-m);
 }
 
 .entry__tagline {
@@ -310,26 +304,32 @@
 }
 
 .hero__names {
-  margin-top: var(--space-xs);
+  margin-top: var(--space-s);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.1em;
-  font-size: var(--step-5);
-  line-height: 0.98;
-  color: var(--forest);
+  gap: 0;
+  font-size: var(--script-l);
 }
 
+.hero__name {
+  display: block;
+}
+
+/* The ampersand is set in the serif — a small still point between two scripts. */
 .hero__amp {
-  font-size: 0.44em;
-  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 0.3em;
   font-style: italic;
+  color: var(--gold);
+  line-height: 1;
+  margin-block: 0.14em;
 }
 
 .hero__emblem {
-  width: clamp(3.4rem, 12vw, 5rem);
+  width: clamp(4.2rem, 15vw, 6.5rem);
   margin: var(--space-s) auto 0;
-  opacity: 0.9;
+  filter: drop-shadow(0 0 18px var(--brass-glow));
 }
 
 .hero__line {
@@ -463,12 +463,11 @@
 .invitation__bloom,
 .reception__bloom {
   position: absolute;
-  top: -0.9rem;
+  top: 0.9rem;
   left: 50%;
   transform: translateX(-50%);
   color: var(--gold-soft);
-  background: var(--ivory);
-  padding: 0 0.4rem;
+  filter: drop-shadow(0 0 10px var(--brass-glow));
 }
 
 .invitation__body {
@@ -492,11 +491,11 @@
 }
 
 .invitation__names {
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  letter-spacing: 0.02em;
+  display: block;
+  margin-top: 0.2em;
+  font-size: var(--script-s);
   text-transform: none;
-  color: var(--forest);
+  letter-spacing: normal;
 }
 
 .invitation__portrait {
@@ -677,14 +676,14 @@
 }
 
 .story__union-names {
-  font-family: var(--font-display);
-  font-size: var(--step-3);
-  color: var(--forest);
+  font-size: var(--script-m);
 }
 
 .story__heart {
+  font-family: var(--font-body);
+  font-size: 0.42em;
   color: var(--maroon);
-  font-size: 0.8em;
+  vertical-align: middle;
 }
 
 .story__union-line {
@@ -1583,10 +1582,7 @@
 
 .closing__names {
   margin-top: var(--space-m);
-  font-family: var(--font-display);
-  font-size: var(--step-4);
-  line-height: 1.05;
-  color: var(--forest);
+  font-size: var(--script-m);
 }
 
 .closing__date {
@@ -1636,9 +1632,8 @@
 }
 
 .footer__couple {
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  color: var(--forest);
+  font-size: var(--script-s);
+  color: var(--gold);
 }
 
 .footer__detail {

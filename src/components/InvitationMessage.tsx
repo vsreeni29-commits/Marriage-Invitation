@@ -12,7 +12,7 @@ export function InvitationMessage() {
   const portrait = media.couple;
 
   return (
-    <Section id="invitation" eyebrow="You are invited" title="With grateful hearts">
+    <Section id="invitation" eyebrow="An invitation" title="Two Families. One Evening.">
       <div className="invitation">
         <div className="invitation__card card card--arch">
           <Jasmine className="invitation__bloom" size={30} />
@@ -24,15 +24,16 @@ export function InvitationMessage() {
 
           <p className="invitation__body">
             One journey began in {couple.brideOrigin}. Another in {couple.groomOrigin}. On{' '}
-            {formattedEvent.day} {formattedEvent.month}, they become one.
+            {formattedEvent.day} {formattedEvent.month}, they become one — and we would rather
+            not begin it without you.
           </p>
 
           <Divider />
 
           <p className="invitation__families">
             Together with our families
-            <span className="invitation__names">
-              {couple.bride} &amp; {couple.groom}
+            <span className="invitation__names script-name foil">
+              {couple.bride} <span className="amp">&amp;</span> {couple.groom}
             </span>
           </p>
         </div>

@@ -103,8 +103,8 @@ export function InvitationEntry({ onEnter }: InvitationEntryProps) {
         </div>
 
         <p className="entry__initials">{couple.initials}</p>
-        <h1 className="entry__names" id="entry-names">
-          {couple.bride} <span className="entry__amp">&amp;</span> {couple.groom}
+        <h1 className="entry__names script-name foil" id="entry-names">
+          {couple.bride} <span className="amp">&amp;</span> {couple.groom}
         </h1>
         <p className="entry__tagline" id="entry-tagline">
           Two traditions. Two cultures.
