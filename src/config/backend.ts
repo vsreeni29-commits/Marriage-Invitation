@@ -18,7 +18,7 @@ export const backend = {
   sheetsEndpoint: null as string | null,
 
   /** Must match SHARED_SECRET in scripts/apps-script/Code.gs. */
-  sharedSecret: 'CHANGE-ME-TO-A-LONG-RANDOM-STRING',
+  sharedSecret: 'rs-xygVTeslDX9AfNDBvVKs8FKjn1ZpjmDV',
 
   /** Give up on a slow network rather than leaving a guest watching a spinner. */
   timeoutMs: 12000,
