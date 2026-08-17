@@ -89,7 +89,8 @@ export function Venue() {
           <address className="venue__address">{venue.address}</address>
 
           <p className="venue__hint">
-            Parking is on site, and the hall is a short walk from the main road.
+            Parking is on site, and the hall is a short walk from the main road. Come early if
+            you’d like to find us before the room fills.
           </p>
 
           <div className="venue__actions">

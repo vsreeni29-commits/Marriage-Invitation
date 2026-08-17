@@ -7,8 +7,8 @@ export function Footer() {
     <footer className="footer">
       <div className="kasavu-rule" aria-hidden="true" />
       <div className="shell footer__inner">
-        <p className="footer__couple">
-          {couple.bride} &amp; {couple.groom}
+        <p className="footer__couple script-name">
+          {couple.bride} <span className="amp">&amp;</span> {couple.groom}
         </p>
         <p className="footer__detail">
           {event.name} <span aria-hidden="true">·</span>{' '}

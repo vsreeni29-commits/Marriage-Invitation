@@ -24,6 +24,7 @@ export function RSVPForm() {
   const [name, setName] = useState('');
   const [guests, setGuests] = useState(2);
   const [note, setNote] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [errors, setErrors] = useState<{ name?: string; attending?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -76,6 +77,7 @@ export function RSVPForm() {
         attending: attending === 'yes',
         guests: attending === 'yes' ? guests : 0,
         note,
+        honeypot,
       });
       setConfirmed(saved);
     } catch (error) {
@@ -130,10 +132,23 @@ export function RSVPForm() {
       id="rsvp"
       eyebrow="RSVP"
       title="Will You Celebrate With Us?"
-      lead="A quick note helps us plan the evening — and count the chairs."
+      lead="A quick word helps us plan the evening — and know how many chairs to keep warm."
       tinted
     >
       <form className="rsvp card" onSubmit={onSubmit} noValidate>
+        {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
+        <div className="honeypot" aria-hidden="true">
+          <label htmlFor="rsvp-website">Leave this empty</label>
+          <input
+            id="rsvp-website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(changeEvent) => setHoneypot(changeEvent.target.value)}
+          />
+        </div>
+
         <fieldset className="rsvp__choice">
           <legend className="field__label">Will you be joining us?</legend>
 

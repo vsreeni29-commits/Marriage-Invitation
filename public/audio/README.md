@@ -2,11 +2,15 @@
 
 The invitation ships with **no audio file**, and does not need one.
 
-When a guest chooses *Enter With Music*, the site generates its ambience in the
-browser with the Web Audio API — a slow flute-like line over a soft drone, on a
-five-note scale shared by Carnatic and Hindustani music. It is original, weighs
-nothing, loops forever, and is deliberately neutral: no ceremony motif from
-either tradition. The code is in `src/services/audioEngine.ts`.
+When a guest chooses *Enter With Music*, the site plays a piece generated in the
+browser with the Web Audio API — a plucked veena carrying the melody, a soft
+flute above it, gentle hand percussion, and a tanpura-style drone. The scale is
+Mohanam / Bhoopali, shared by Carnatic and Hindustani music. It is original,
+weighs nothing, loops forever, and is deliberately neutral: no ceremony motif
+from either tradition.
+
+The score is `src/services/composition.ts`; the synthesis is
+`src/services/audioEngine.ts`.
 
 ## Using a real recording instead
 

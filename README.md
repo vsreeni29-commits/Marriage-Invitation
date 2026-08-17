@@ -104,8 +104,36 @@ TypeScript: the `<noscript>` block and the JSON-LD in `index.html`.
 `src/config/media.ts` — see `public/images/README.md`. Until then the site uses
 its own illustration rather than stock photographs of other people.
 
-**Music** is generated in the browser by default; drop a file in `public/audio/`
-to use a real recording instead. See `public/audio/README.md`.
+**Music** is an original instrumental generated in the browser: a plucked veena
+carrying the tune, a soft flute in long tones above it, gentle hand percussion
+keeping the pulse, and a tanpura-style drone underneath. The scale is Mohanam /
+Bhoopali, shared by Carnatic and Hindustani music. Two sections, twenty-eight
+bars, 131 notes in the veena line — a full cycle runs about thirty-nine seconds
+and loops without a seam.
+
+- **The score** is `src/services/composition.ts` — notes, chords, drum pattern.
+  Every voice sums to the same 84 beats, so the parts can never drift apart.
+- **The synthesis** is `src/services/audioEngine.ts`. The veena is a single
+  oscillator using a `PeriodicWave` built from a plucked string's harmonic
+  series, with a filter that closes as the note rings, so the tone darkens the
+  way a real string does. Notes that leap glide into pitch — the gamaka that
+  makes it sound like a veena rather than a harp.
+
+To hear it outside a browser:
+
+```bash
+node scripts/preview-music.mjs preview.wav          # 22 kHz, small
+PREVIEW_RATE=44100 PREVIEW_LOOPS=3 node scripts/preview-music.mjs preview.wav
+```
+
+That script reads the score straight out of `composition.ts`, so the notes can
+never drift from the site; only the synthesis is duplicated, and it mirrors the
+engine closely enough that the offline render and the browser measure within a
+few percent of each other.
+
+To use a real recording instead, drop a licensed file in `public/audio/` and
+point `media.audio.src` at it; see `public/audio/README.md`. The generated
+version stays as the fallback if the file is missing or fails to play.
 
 **The share image** is regenerated with `node scripts/generate-og.mjs`
 (needs `npm i -D sharp` and the Cormorant Garamond / Inter fonts installed
@@ -120,28 +148,76 @@ src/
   components/          one file per section, plus ornaments/ and ui/
     ornaments/         the entire decorative vocabulary, drawn in SVG
     ui/                Section wrapper, ErrorBoundary
-  config/              weddingConfig.ts (source of truth), media.ts (image slots)
+  config/              weddingConfig.ts (source of truth), media.ts (image
+                       slots), backend.ts (where responses are stored)
   context/             MusicContext — owns the single audio instance
   hooks/               useCountdown, useReveal, useScrollProgress, useReducedMotion
   services/            persistence behind an interface, + the audio engine
   styles/              tokens.css, base.css, sections.css
   utils/               geometry.ts, calendar.ts, share.ts
-scripts/               generate-og.mjs
+scripts/               generate-og.mjs, preview-music.mjs, apps-script/Code.gs
 public/                og-image.png, favicons, images/, audio/
 ```
 
+**Type:** three voices, deliberately. **Pinyon Script** is used for exactly one
+thing — the couple's names — so calligraphy stays special and never gets in the
+way of anything a guest has to read. **Cormorant Garamond** carries section
+titles, dates and the emotional lines. **Jost** handles body copy, forms and
+buttons. Tamil and Malayalam use Noto Serif faces, subsetted to the handful of
+characters actually used.
+
 **Stack:** React 18 + TypeScript + Vite. No UI framework, no animation library,
-no state library — the whole thing is ~64 KB of gzipped JavaScript and one CSS
+no state library — the whole thing is ~65 KB of gzipped JavaScript and one CSS
 file. Animation is CSS plus `IntersectionObserver`, and scroll-linked motion is
 a `requestAnimationFrame`-throttled measurement, so nothing fights the guest for
 control of the page.
 
-### Connecting a real backend
+### Connecting the Google Sheet
 
-RSVPs and blessings currently persist to the guest's own browser, which is
-enough to share the invitation today. The UI talks only to the interfaces in
-`src/services/types.ts`, so going live means writing one adapter and changing
-two lines in `src/services/index.ts`:
+RSVPs and blessings land as rows in a Google Sheet you own — the spreadsheet
+*is* the database. Nothing to pay for, nothing that pauses when idle, and
+"download the guest list as Excel" is File → Download → .xlsx.
+
+Until an endpoint is configured everything stays in the guest's own browser, so
+the site works locally and in previews without any setup.
+
+**Setup, about five minutes:**
+
+1. Create a Google Sheet. Name it whatever you like — the tabs are created
+   automatically on the first response.
+2. **Extensions → Apps Script**. Delete the placeholder, paste the contents of
+   [`scripts/apps-script/Code.gs`](scripts/apps-script/Code.gs).
+3. Replace `SHARED_SECRET` at the top with a long random string. Save.
+4. **Deploy → New deployment → Web app**:
+   - *Execute as*: **Me**
+   - *Who has access*: **Anyone**  ← required; the site calls it without login
+   - Deploy, approve the permission prompt, and copy the `/exec` URL.
+5. In `src/config/backend.ts`, set `sheetsEndpoint` to that URL and
+   `sharedSecret` to the same string from step 3.
+6. Commit and push. Send yourself a test RSVP and check the sheet.
+
+Two tabs appear: **RSVPs** (timestamp, name, attending, guests, note) and
+**Blessings** (timestamp, name, message). Timestamps are IST.
+
+> **On the shared secret:** it ships to the browser, so anyone viewing source
+> can read it. It is a spam deterrent, not a security control. The real
+> protection is that the endpoint can only ever append rows to two tabs of one
+> spreadsheet, and the script clamps and truncates everything it receives.
+> There is also a hidden honeypot field in both forms that bots fill in and
+> people never see.
+>
+> If you later want stricter control, put a serverless function in front of the
+> endpoint and keep the secret server-side.
+
+**After a redeploy of the Apps Script**, use *Deploy → Manage deployments →
+edit → New version*, which keeps the same `/exec` URL. Creating a *new*
+deployment issues a different URL and you would have to update the config.
+
+### Any other backend
+
+The UI talks only to the interfaces in `src/services/types.ts`, so Supabase,
+Firebase or a REST API is one more adapter and two lines in
+`src/services/index.ts`:
 
 ```ts
 export const blessingService: BlessingService = createSupabaseBlessingService(supabase);
@@ -173,9 +249,10 @@ Built in from the start, not retrofitted:
 ## Privacy
 
 No analytics, no tracking pixels, no advertising scripts, no cookies, no
-embedded third-party map frame. The only external requests are to Google Fonts.
-Guest messages and RSVPs stay in the guest's own browser until a backend is
-connected.
+embedded third-party map frame. External requests are limited to Google Fonts
+and — once configured — the Apps Script endpoint that writes to your own
+spreadsheet. Until that is set up, guest messages and RSVPs never leave the
+guest's own browser.
 
 ## Progressive enhancement
 

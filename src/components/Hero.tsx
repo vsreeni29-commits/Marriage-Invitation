@@ -42,19 +42,19 @@ export function Hero() {
             {couple.brideOrigin} <span aria-hidden="true">·</span> {couple.groomOrigin}
           </p>
 
-          <h1 className="hero__names">
-            <span className="hero__name">{couple.bride}</span>
+          <h1 className="hero__names script-name">
+            <span className="hero__name foil">{couple.bride}</span>
             <span className="hero__amp" aria-hidden="true">
               &amp;
             </span>
             <span className="visually-hidden">and</span>
-            <span className="hero__name">{couple.groom}</span>
+            <span className="hero__name foil">{couple.groom}</span>
           </h1>
 
           <Emblem className="hero__emblem" />
 
           <p className="hero__line">
-            Kerala meets Tamil Nadu. And somewhere between the two, we found home.
+            Kerala meets Tamil Nadu — and somewhere between the two, we found home.
           </p>
 
           <p className="hero__date">

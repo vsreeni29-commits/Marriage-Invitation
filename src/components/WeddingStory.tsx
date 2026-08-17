@@ -27,7 +27,7 @@ export function WeddingStory() {
       id="story"
       eyebrow="Where it began"
       title="Two Roots. One Story."
-      lead="Two coastlines, two languages, two kitchens that season things differently — and one home being built between them."
+      lead="Two coastlines. Two languages. Two kitchens that season everything differently. And one home, being built somewhere in between."
       tinted
     >
       <div
@@ -139,7 +139,7 @@ export function WeddingStory() {
       </div>
 
       <p className="story__union">
-        <span className="story__union-names">
+        <span className="story__union-names script-name foil">
           {couple.bride} <span className="story__heart" aria-hidden="true">♡</span>{' '}
           <span className="visually-hidden">and</span> {couple.groom}
         </span>
