@@ -270,6 +270,9 @@ export const GardenFlower = memo(function GardenFlower({
  * this invitation in a way a stock photograph never could.
  * ------------------------------------------------------------------ */
 
+/** One half of the heart the pair's necks describe. */
+const NECK = 'M 52 40 C 43 27 46 8 57 8 C 64.5 8 67.5 13.5 64.5 19.5';
+
 export const SwanLake = memo(function SwanLake({ className }: OrnamentProps) {
   // One swan, facing right; the pair is this mirrored about the centre.
   const swan = (
@@ -282,25 +285,29 @@ export const SwanLake = memo(function SwanLake({ className }: OrnamentProps) {
         strokeOpacity="0.5"
         strokeWidth="0.8"
       />
-      {/* Neck and head, curving in toward its partner. */}
+      {/*
+         The neck traces one half of a heart: up and outward from the body,
+         over the top of the lobe, then down and inward so the bill meets its
+         partner's at the centre. Mirrored, the two necks close the shape.
+      */}
       <path
-        d="M 57 40 C 62 30 62 18 56 12 C 51 7 44 7 41 11 C 38 15 39 20 43 21"
+        d={NECK}
         fill="none"
         stroke="#fffdf6"
-        strokeWidth="5.4"
+        strokeWidth="5.2"
         strokeLinecap="round"
       />
       <path
-        d="M 57 40 C 62 30 62 18 56 12 C 51 7 44 7 41 11 C 38 15 39 20 43 21"
+        d={NECK}
         fill="none"
         stroke="#c3a570"
         strokeOpacity="0.45"
         strokeWidth="0.7"
         strokeLinecap="round"
       />
-      {/* Bill and eye. */}
-      <path d="M 41.5 13 L 34 15.5 L 41 17.5 Z" fill="#c98a63" />
-      <circle cx="45" cy="13.4" r="1.15" fill="#453d34" />
+      {/* Bill, angled down and in to the meeting point; and the eye. */}
+      <path d="M 65.5 21.5 L 71.5 27 L 62.8 25.5 Z" fill="#c98a63" />
+      <circle cx="61.6" cy="16" r="1.15" fill="#453d34" />
       {/* A wing line, so the body is not a blank shape. */}
       <path
         d="M 20 40 C 27 34 38 33 47 36"
