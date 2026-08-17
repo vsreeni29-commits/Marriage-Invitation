@@ -6,7 +6,7 @@ import { Modal } from './ui/Modal';
 import { Emblem, WaxSeal } from './ornaments/Ornaments';
 
 const MIN_GUESTS = 1;
-const MAX_GUESTS = 15;
+const MAX_GUESTS = 5;
 
 type Attendance = 'yes' | 'no' | null;
 
@@ -129,7 +129,7 @@ interface RsvpFieldsProps {
 function RsvpFields({ onDone }: RsvpFieldsProps) {
   const [attending, setAttending] = useState<Attendance>(null);
   const [name, setName] = useState('');
-  const [guests, setGuests] = useState(2);
+  const [guests, setGuests] = useState(MIN_GUESTS);
   const [note, setNote] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [errors, setErrors] = useState<{ name?: string; attending?: string }>({});
@@ -263,7 +263,7 @@ function RsvpFields({ onDone }: RsvpFieldsProps) {
       {attending === 'yes' && (
         <div className="field">
           <label className="field__label" htmlFor="rsvp-guests">
-            Number of people attending
+            How many of you are coming?
           </label>
           <div className="stepper">
             <button
@@ -296,7 +296,9 @@ function RsvpFields({ onDone }: RsvpFieldsProps) {
               +
             </button>
           </div>
-          <p className="field__count">Including yourself. Up to {MAX_GUESTS} per response.</p>
+          <p className="field__count">
+            Including yourself — up to {MAX_GUESTS}. Coming with more? Send a second response.
+          </p>
         </div>
       )}
 

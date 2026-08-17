@@ -867,8 +867,10 @@
 
 .fusion__captions {
   position: relative;
-  /* Tall enough for the longest caption, so crossfading pairs never overlap. */
-  min-height: 13rem;
+  /* Tall enough for the longest caption, so crossfading pairs never overlap —
+     but no taller, or the resolved motif is pushed off the centre of a phone
+     screen by a block of empty space. */
+  min-height: 10.5rem;
 }
 
 .fusion__caption {
