@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useReveal } from '../../hooks/useReveal';
-import { Mankolam, SilkBorder } from '../ornaments/Ornaments';
+import { Mankolam, PaperTear, SilkBorder } from '../ornaments/Ornaments';
 
 interface SectionProps {
   id?: string;
@@ -10,6 +10,8 @@ interface SectionProps {
   children: ReactNode;
   /** Adds the warm cream wash used to separate neighbouring sections. */
   tinted?: boolean;
+  /** Tears the top and bottom edges, as though the card stock were torn. */
+  torn?: boolean;
   className?: string;
   /** Heading level, so the document outline stays correct. */
   headingLevel?: 2 | 3;
@@ -26,11 +28,14 @@ export function Section({
   lead,
   children,
   tinted = false,
+  torn = false,
   className,
   headingLevel = 2,
 }: SectionProps) {
   const { ref, isVisible } = useReveal<HTMLElement>();
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
+  // One seed per section id, so every tear on the page is a different tear.
+  const seed = (id ?? 'section').length * 7 + (id?.charCodeAt(0) ?? 3);
 
   return (
     <section
@@ -39,6 +44,7 @@ export function Section({
       className={[
         'section',
         tinted ? 'section--tint' : '',
+        torn ? 'section--torn' : '',
         'reveal',
         isVisible ? 'is-visible' : '',
         className ?? '',
@@ -47,7 +53,9 @@ export function Section({
         .join(' ')}
       aria-labelledby={title && id ? `${id}-title` : undefined}
     >
-      {tinted && <SilkBorder className="section__edge section__edge--top" />}
+      {torn && <PaperTear className="section__tear section__tear--top" seed={seed} />}
+      {/* A torn edge and a woven band on the same line fight each other. */}
+      {tinted && !torn && <SilkBorder className="section__edge section__edge--top" />}
 
       <div className="shell">
         {(eyebrow || title) && (
@@ -69,7 +77,8 @@ export function Section({
         {children}
       </div>
 
-      {tinted && <SilkBorder className="section__edge section__edge--bottom" flip />}
+      {tinted && !torn && <SilkBorder className="section__edge section__edge--bottom" flip />}
+      {torn && <PaperTear className="section__tear section__tear--bottom" seed={seed + 5} flip />}
     </section>
   );
 }

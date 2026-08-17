@@ -7,6 +7,8 @@ import {
   polygonPath,
   seeded,
   starPath,
+  tornEdgePath,
+  waxEdgePath,
 } from '../../utils/geometry';
 
 /**
@@ -251,6 +253,109 @@ export const ArchOutline = memo(function ArchOutline({ className, weight = 1 }: 
     <svg className={className} viewBox="0 0 200 260" fill="none" aria-hidden="true" focusable="false" preserveAspectRatio="none">
       <path d={archPath(4, 4, 192, 252, 0.3)} stroke="currentColor" strokeWidth={1.2 * weight} />
       <path d={archPath(13, 13, 174, 243, 0.3)} stroke="currentColor" strokeWidth={0.7 * weight} strokeOpacity="0.6" strokeDasharray="2 6" />
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Wax seal — the thing a guest breaks to open the envelope, and the
+ * thing they press to answer. Poured maroon wax, a pressed rim, and a
+ * kolam ring around whatever is stamped into it.
+ * ------------------------------------------------------------------ */
+
+interface WaxSealProps {
+  className?: string;
+  /** Stamped into the wax — initials on the envelope, a word on a button. */
+  label: string;
+  /** Small labels get the display face; two or three letters get the script. */
+  variant?: 'monogram' | 'word';
+}
+
+export const WaxSeal = memo(function WaxSeal({
+  className,
+  label,
+  variant = 'monogram',
+}: WaxSealProps) {
+  return (
+    <svg
+      className={`wax ${className ?? ''}`}
+      viewBox="0 0 120 120"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <radialGradient id="wax-body" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stopColor="#8c3038" />
+          <stop offset="55%" stopColor="#5e1f27" />
+          <stop offset="100%" stopColor="#3b1015" />
+        </radialGradient>
+      </defs>
+
+      {/* The wax itself, poured a little unevenly. */}
+      <path d={waxEdgePath(60, 60, 52, 20, 0.03, 9)} fill="url(#wax-body)" />
+      {/* Pressed rim: the stamp squeezes the wax up at the edge. */}
+      <path
+        d={waxEdgePath(60, 60, 45, 20, 0.025, 3)}
+        stroke="#330d12"
+        strokeOpacity="0.55"
+        strokeWidth="1.4"
+      />
+      <path d={waxEdgePath(60, 60, 41, 18, 0.02, 21)} stroke="#c9a96a" strokeOpacity="0.34" strokeWidth="0.8" />
+
+      {/* A kolam loop ring, pressed into the wax by the stamp. */}
+      <path
+        d={loopRingPath(60, 60, 34, 8, 0.44)}
+        stroke="#e9cf9c"
+        strokeOpacity="0.34"
+        strokeWidth="0.9"
+      />
+
+      <text
+        className={`wax__label wax__label--${variant}`}
+        x="60"
+        y="60"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="#f0d9a8"
+        fillOpacity="0.92"
+      >
+        {label}
+      </text>
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Torn paper edge — the invitation is card stock, and card stock tears.
+ * ------------------------------------------------------------------ */
+
+interface PaperTearProps {
+  className?: string;
+  /** Point the fibres downward for the bottom edge of a section. */
+  flip?: boolean;
+  /** Vary the tear so no two edges on the page are identical. */
+  seed?: number;
+}
+
+export const PaperTear = memo(function PaperTear({ className, flip = false, seed = 11 }: PaperTearProps) {
+  return (
+    <svg
+      className={`tear ${flip ? 'tear--flip' : ''} ${className ?? ''}`}
+      viewBox="0 0 1200 26"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={tornEdgePath(1200, 26, 44, seed)} fill="currentColor" />
+      {/* The pale crushed fibres along the tear line. */}
+      <path
+        d={tornEdgePath(1200, 26, 44, seed)}
+        fill="none"
+        stroke="#c9a96a"
+        strokeOpacity="0.28"
+        strokeWidth="1"
+      />
     </svg>
   );
 });

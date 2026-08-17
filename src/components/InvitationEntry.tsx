@@ -1,34 +1,59 @@
-import { useEffect, useRef } from 'react';
-import { weddingConfig } from '../config/weddingConfig';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { dotRing, loopRingPath, polygonPath, starPath } from '../utils/geometry';
-import { Emblem } from './ornaments/Ornaments';
+import { Emblem, JaaliBackdrop, WaxSeal } from './ornaments/Ornaments';
 
 interface InvitationEntryProps {
   onEnter: (withMusic: boolean) => void;
 }
 
+/** How long the envelope takes to open before the invitation takes over. */
+const OPEN_MS = 1750;
+
 /**
  * The opening.
  *
- * A kolam line begins drawing from one side, a geometric star from the other.
- * They travel toward each other, meet, and resolve into a single emblem —
- * the whole idea of the wedding, told in about three seconds, before a single
- * word is read.
+ * A sealed envelope, addressed and pressed with wax. Break the seal and the
+ * flap falls open, light spills out of the pocket, and the card rises out of it
+ * into the invitation itself.
  *
- * It is short by design, and the entry buttons appear early: nobody should
- * have to wait through an animation to reach an invitation.
+ * The music choice lives here because a browser will only start audio off a
+ * real gesture — and because starting music at somebody uninvited is rude.
+ * Either way it is one tap: the guest never has to sit through the animation,
+ * and a guest who asks for reduced motion skips it entirely.
  */
 export function InvitationEntry({ onEnter }: InvitationEntryProps) {
   const reducedMotion = useReducedMotion();
-  const musicButton = useRef<HTMLButtonElement>(null);
-  const { couple } = weddingConfig;
+  const openButton = useRef<HTMLButtonElement>(null);
+  const timer = useRef<number | null>(null);
+  const [opening, setOpening] = useState(false);
+  const { couple, event } = weddingConfig;
+
+  const open = useCallback(
+    (withMusic: boolean) => {
+      if (opening) return;
+      if (reducedMotion) {
+        onEnter(withMusic);
+        return;
+      }
+      setOpening(true);
+      timer.current = window.setTimeout(() => onEnter(withMusic), OPEN_MS);
+    },
+    [onEnter, opening, reducedMotion],
+  );
 
   useEffect(() => {
     // Focus the primary action so keyboard and screen-reader guests start here.
-    const id = window.setTimeout(() => musicButton.current?.focus(), reducedMotion ? 60 : 900);
+    const id = window.setTimeout(() => openButton.current?.focus(), reducedMotion ? 60 : 700);
     return () => window.clearTimeout(id);
   }, [reducedMotion]);
+
+  useEffect(
+    () => () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     const { style } = document.body;
@@ -41,71 +66,47 @@ export function InvitationEntry({ onEnter }: InvitationEntryProps) {
 
   return (
     <div
-      className={`entry ${reducedMotion ? 'entry--still' : ''}`}
+      className={`entry ${reducedMotion ? 'entry--still' : ''} ${opening ? 'is-opening' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="entry-names"
       aria-describedby="entry-tagline"
     >
+      <div className="entry__light" aria-hidden="true" />
+
       <div className="entry__inner">
-        <div className="entry__stage" aria-hidden="true">
-          <svg viewBox="0 0 320 200" fill="none" focusable="false">
-            {/* Tamil Nadu: an unbroken kolam line, drawn around its dots. */}
-            <g className="entry__motif entry__motif--kolam">
-              <path
-                d={loopRingPath(100, 100, 46, 8, 0.46)}
-                pathLength={1}
-                stroke="#b26644"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-              />
-              <path
-                d={loopRingPath(100, 100, 24, 6, 0.55)}
-                pathLength={1}
-                stroke="#b26644"
-                strokeWidth="1"
-                strokeLinecap="round"
-              />
-              {dotRing(100, 100, 60, 8, 22.5).map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r="1.6" fill="#b26644" fillOpacity="0.6" />
-              ))}
-            </g>
-
-            {/* Kerala, Muslim heritage: an eight-point geometric star. */}
-            <g className="entry__motif entry__motif--geometry">
-              <path
-                d={starPath(220, 100, 58, 32, 8, 0)}
-                pathLength={1}
-                stroke="#35594a"
-                strokeWidth="1.1"
-                strokeLinejoin="round"
-              />
-              <path
-                d={polygonPath(220, 100, 40, 8, 22.5)}
-                pathLength={1}
-                stroke="#35594a"
-                strokeWidth="1"
-                strokeLinejoin="round"
-              />
-              <path
-                d={polygonPath(220, 100, 26, 4, 0)}
-                pathLength={1}
-                stroke="#35594a"
-                strokeWidth="0.9"
-                strokeLinejoin="round"
-              />
-            </g>
-          </svg>
-
-          <div className="entry__emblem">
-            <Emblem className="entry__emblem-mark" />
+        <div className="envelope">
+          {/* The card inside, which rises out of the pocket as the flap falls. */}
+          <div className="envelope__card">
+            <span className="envelope__card-edge" aria-hidden="true" />
+            <p className="entry__initials">{couple.initials}</p>
+            <h1 className="entry__names script-name foil" id="entry-names">
+              {couple.bride} <span className="amp">&amp;</span> {couple.groom}
+            </h1>
+            <Emblem className="entry__emblem" />
+            <p className="entry__date">
+              <time dateTime={event.date}>{formattedEvent.numericDate}</time>
+            </p>
           </div>
+
+          {/* The pocket: front panel and the two side folds. */}
+          <div className="envelope__pocket" aria-hidden="true">
+            <span className="envelope__fold envelope__fold--left" />
+            <span className="envelope__fold envelope__fold--right" />
+            <span className="envelope__front" />
+            {/* Paper texture, painted over the folds rather than under them. */}
+            <JaaliBackdrop className="envelope__weave" />
+          </div>
+
+          {/* The flap, and the wax holding it shut. */}
+          <div className="envelope__flap" aria-hidden="true">
+            <span className="envelope__flap-face" />
+          </div>
+          <span className="envelope__seal" aria-hidden="true">
+            <WaxSeal label={couple.initials} />
+          </span>
         </div>
 
-        <p className="entry__initials">{couple.initials}</p>
-        <h1 className="entry__names script-name foil" id="entry-names">
-          {couple.bride} <span className="amp">&amp;</span> {couple.groom}
-        </h1>
         <p className="entry__tagline" id="entry-tagline">
           Two traditions. Two cultures.
           <br />
@@ -114,15 +115,21 @@ export function InvitationEntry({ onEnter }: InvitationEntryProps) {
 
         <div className="entry__actions">
           <button
-            ref={musicButton}
+            ref={openButton}
             type="button"
-            className="btn btn--gold"
-            onClick={() => onEnter(true)}
+            className="btn btn--gold entry__open"
+            onClick={() => open(true)}
+            disabled={opening}
           >
-            Enter With Music <span aria-hidden="true">♪</span>
+            Tap to Open <span aria-hidden="true">♪</span>
           </button>
-          <button type="button" className="btn btn--ghost" onClick={() => onEnter(false)}>
-            Enter Quietly
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => open(false)}
+            disabled={opening}
+          >
+            Open Quietly
           </button>
         </div>
 

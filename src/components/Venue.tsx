@@ -6,15 +6,18 @@ import { Section } from './ui/Section';
 /**
  * Where We Celebrate.
  *
- * The map card is drawn rather than embedded — an embedded map would load a
- * third-party frame and its cookies onto every guest's phone for a picture
- * they will tap away from anyway. The tap target goes straight to Google Maps,
- * which is what a guest standing on Velachery Main Road actually needs.
+ * The card is drawn first and only becomes a live, pannable Google map when a
+ * guest asks for one. Same interaction, but the third-party frame and its
+ * cookies land on the phones of guests who actually want the map rather than on
+ * everybody's — and the drawn version is what the section is designed around.
  */
 export function Venue() {
   const reducedMotion = useReducedMotion();
   const { venue } = weddingConfig;
   const [copied, setCopied] = useState<'idle' | 'done' | 'failed'>('idle');
+  const [liveMap, setLiveMap] = useState(false);
+  const { lat, lng } = venue.coordinates;
+  const embedSrc = `https://maps.google.com/maps?q=${lat},${lng}&z=16&hl=en&output=embed`;
 
   const copyAddress = async () => {
     const text = `${venue.name}, ${venue.address}`;
@@ -30,8 +33,28 @@ export function Venue() {
   return (
     <Section id="venue" eyebrow="Getting there" title="Where We Celebrate" tinted>
       <div className="venue">
-        <div className="venue__map card" aria-hidden="true">
-          <svg viewBox="0 0 400 260" fill="none" focusable="false" role="presentation">
+        {liveMap ? (
+          <div className="venue__map venue__map--live card">
+            <iframe
+              className="venue__frame"
+              title={`Map showing ${venue.name}`}
+              src={embedSrc}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+            <a
+              className="venue__chip"
+              href={venue.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Maps <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        ) : (
+        <div className="venue__map card">
+          <svg viewBox="0 0 400 260" fill="none" focusable="false" aria-hidden="true">
             <rect width="400" height="260" rx="12" fill="#f3ead9" />
 
             {/* Blocks */}
@@ -78,11 +101,16 @@ export function Venue() {
             </g>
           </svg>
 
-          <p className="venue__map-label">
+          <p className="venue__map-label" aria-hidden="true">
             <span>Velachery Main Road</span>
             <span>Gowriwakkam, Chennai</span>
           </p>
+
+          <button type="button" className="venue__chip venue__chip--button" onClick={() => setLiveMap(true)}>
+            Show live map
+          </button>
         </div>
+        )}
 
         <div className="venue__details">
           <h3 className="venue__name">{venue.name}</h3>

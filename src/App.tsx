@@ -10,6 +10,8 @@ import { CulturalFusion } from './components/CulturalFusion';
 import { DateScratchReveal } from './components/DateScratchReveal';
 import { Countdown } from './components/Countdown';
 import { ReceptionDetails } from './components/ReceptionDetails';
+import { EventTimeline } from './components/EventTimeline';
+import { GuestNotes } from './components/GuestNotes';
 import { CulturalQuote } from './components/CulturalQuote';
 import { OurSong } from './components/OurSong';
 import { Venue } from './components/Venue';
@@ -105,6 +107,10 @@ function Invitation() {
 
           <ReceptionDetails />
 
+          <ErrorBoundary label="schedule">
+            <EventTimeline />
+          </ErrorBoundary>
+
           <ErrorBoundary label="quote">
             <CulturalQuote />
           </ErrorBoundary>
@@ -114,6 +120,10 @@ function Invitation() {
           </ErrorBoundary>
 
           <Venue />
+
+          <ErrorBoundary label="notes">
+            <GuestNotes />
+          </ErrorBoundary>
 
           <ErrorBoundary label="blessings">
             <BlessingGarden />

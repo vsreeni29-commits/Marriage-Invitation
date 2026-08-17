@@ -142,6 +142,50 @@ export const archPath = (
   ].join(' ');
 };
 
+/**
+ * A closed, softly irregular circle — the edge of a pressed wax seal, where the
+ * wax spread a little differently all the way round. Smooth (quadratic through
+ * midpoints) rather than scalloped, so it reads as poured, not cut.
+ */
+export const waxEdgePath = (
+  cx: number,
+  cy: number,
+  radius: number,
+  points = 26,
+  jitter = 0.05,
+  seed = 7,
+): string => {
+  const rand = seeded(seed);
+  const ring = Array.from({ length: points }, (_, i) =>
+    polar(cx, cy, radius * (1 + (rand() - 0.5) * jitter * 2), (360 / points) * i),
+  );
+  const mid = (a: Point, b: Point): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+  let d = `M ${pt(mid(ring[points - 1], ring[0]))}`;
+  for (let i = 0; i < points; i += 1) {
+    d += ` Q ${pt(ring[i])} ${pt(mid(ring[i], ring[(i + 1) % points]))}`;
+  }
+  return `${d} Z`;
+};
+
+/**
+ * The deckled edge of hand-torn paper, as a closed shape filling everything
+ * above the tear. Drawn into a `preserveAspectRatio="none"` viewBox so one
+ * path stretches across any screen width.
+ */
+export const tornEdgePath = (width: number, height: number, steps = 26, seed = 11): string => {
+  const rand = seeded(seed);
+  const step = width / steps;
+  // A random walk, not an alternation: a strict zigzag reads as pinking shears.
+  let y = 0.5;
+  let d = `M ${fmt(width)} 0 L 0 0 L 0 ${fmt(height * 0.5)}`;
+  for (let i = 0; i <= steps; i += 1) {
+    y = clamp(y + (rand() - 0.5) * 0.44, 0.2, 0.84);
+    d += ` L ${fmt(step * i)} ${fmt(height * y)}`;
+  }
+  return `${d} L ${fmt(width)} ${fmt(height * 0.5)} Z`;
+};
+
 /** Deterministic pseudo-random, so petals and stars land identically every load. */
 export const seeded = (seed: number) => {
   let s = seed % 2147483647;
