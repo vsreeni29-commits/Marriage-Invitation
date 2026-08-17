@@ -56,7 +56,11 @@
        display — section titles, dates, the emotional lines
        body    — everything a guest has to read carefully
   */
-  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  /*
+     Great Vibes, not Pinyon Script: Pinyon's capital S has a leading loop
+     that reads as a P, and "Preeni" is not the groom's name.
+  */
+  --font-script: 'Great Vibes', 'Snell Roundhand', 'Apple Chancery', cursive;
   --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype',
     'Times New Roman', serif;
   --font-body: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -75,9 +79,9 @@
   --step-5: clamp(3.6rem, 2.1rem + 7.2vw, 8rem);
 
   /* Script sits on a scale of its own — low x-height needs more size. */
-  --script-s: clamp(1.9rem, 1.45rem + 2.2vw, 3.1rem);
-  --script-m: clamp(2.4rem, 1.7rem + 3.5vw, 4.6rem);
-  --script-l: clamp(3.4rem, 1.95rem + 6.6vw, 7.6rem);
+  --script-s: clamp(1.7rem, 1.3rem + 2vw, 2.8rem);
+  --script-m: clamp(2.2rem, 1.55rem + 3.2vw, 4.2rem);
+  --script-l: clamp(3rem, 1.8rem + 5.8vw, 6.8rem);
 
   --tracking-wide: 0.28em;
   --tracking-mid: 0.16em;
@@ -102,7 +106,12 @@
 
   --radius-s: 6px;
   --radius-m: 14px;
-  --radius-arch: 46% 46% 8px 8px / 34% 34% 8px 8px;
+  /*
+     The vertical half of this is a percentage of the card's *height*, so on a
+     tall card a large value produces an enormous dome that eats the first
+     lines of text. Keep it shallow.
+  */
+  --radius-arch: 50% 50% 10px 10px / 8% 8% 10px 10px;
 
   color-scheme: light;
 }

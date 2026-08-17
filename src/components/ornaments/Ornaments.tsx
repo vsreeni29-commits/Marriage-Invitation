@@ -249,8 +249,8 @@ export const PalmFrond = memo(function PalmFrond({ className }: OrnamentProps) {
 export const ArchOutline = memo(function ArchOutline({ className, weight = 1 }: OrnamentProps) {
   return (
     <svg className={className} viewBox="0 0 200 260" fill="none" aria-hidden="true" focusable="false" preserveAspectRatio="none">
-      <path d={archPath(4, 4, 192, 252, 0.44)} stroke="currentColor" strokeWidth={1.2 * weight} />
-      <path d={archPath(13, 13, 174, 243, 0.44)} stroke="currentColor" strokeWidth={0.7 * weight} strokeOpacity="0.6" strokeDasharray="2 6" />
+      <path d={archPath(4, 4, 192, 252, 0.3)} stroke="currentColor" strokeWidth={1.2 * weight} />
+      <path d={archPath(13, 13, 174, 243, 0.3)} stroke="currentColor" strokeWidth={0.7 * weight} strokeOpacity="0.6" strokeDasharray="2 6" />
     </svg>
   );
 });
