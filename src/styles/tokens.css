@@ -1,21 +1,26 @@
 /* ============================================================
    Rinsha & Sreeni — design tokens
-   Warm ivory · kasavu gold · forest green · sandalwood · maroon
+   Kasavu parchment · temple gold · deep maroon · forest green
+
+   The palette sits where a South Indian silk border sits: warm
+   parchment ground, real gold rather than yellow, maroon and forest
+   as structural colours rather than timid accents.
    ============================================================ */
 
 :root {
   /* --- Surfaces --------------------------------------------------- */
-  --ivory: #fcf9f3;
-  --cream: #f6eee1;
-  --paper: #f2e8d8;
-  --sand: #e7d8c1;
-  --sandalwood: #dcc4a2;
+  --ivory: #f7efdf;
+  --cream: #f1e4cd;
+  --paper: #ebdcc0;
+  --sand: #e0cba7;
+  --sandalwood: #d4b98d;
 
   /* --- Metals ----------------------------------------------------- */
-  --gold: #a9854b;
-  --gold-soft: #c3a570;
-  --gold-pale: #e3d2ae;
-  --brass-glow: rgba(197, 154, 76, 0.35);
+  --gold: #96742f;
+  --gold-soft: #b8934a;
+  --gold-deep: #7a5c22;
+  --gold-pale: #ddc79a;
+  --brass-glow: rgba(168, 128, 48, 0.45);
 
   /* --- Greens (Kerala coconut / forest) --------------------------- */
   --forest: #1e3a33;
@@ -23,8 +28,9 @@
   --leaf: #6d8b74;
 
   /* --- Warm accents (Tamil Nadu terracotta / maroon) -------------- */
-  --maroon: #6d2b33;
-  --terracotta: #b26644;
+  --maroon: #5e1f27;
+  --maroon-deep: #431319;
+  --terracotta: #a85535;
   --clay: #c98a63;
 
   /* --- Ink -------------------------------------------------------- */
@@ -38,8 +44,9 @@
   --bg-alt: var(--cream);
   --text: var(--ink);
   --heading: var(--forest);
-  --rule: rgba(169, 133, 75, 0.28);
-  --rule-strong: rgba(169, 133, 75, 0.55);
+  --rule: rgba(150, 116, 47, 0.34);
+  --rule-strong: rgba(150, 116, 47, 0.62);
+  --rule-maroon: rgba(94, 31, 39, 0.4);
   --shadow-soft: 0 18px 50px -28px rgba(42, 38, 34, 0.42);
   --shadow-lift: 0 26px 70px -34px rgba(30, 58, 51, 0.5);
 

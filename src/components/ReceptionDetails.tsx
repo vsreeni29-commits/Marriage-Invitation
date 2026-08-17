@@ -1,7 +1,7 @@
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { Section } from './ui/Section';
 import { AddToCalendar } from './AddToCalendar';
-import { Divider, Jasmine } from './ornaments/Ornaments';
+import { CardCorners, Divider, Jasmine } from './ornaments/Ornaments';
 
 /**
  * What is actually happening, in plain words: one evening, dinner, and the
@@ -14,6 +14,7 @@ export function ReceptionDetails() {
     <Section id="reception" eyebrow="The evening" title="Wedding Reception">
       <div className="reception">
         <div className="reception__card card card--arch">
+          <CardCorners />
           <Jasmine className="reception__bloom" size={28} />
 
           <dl className="reception__list">

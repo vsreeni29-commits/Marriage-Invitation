@@ -1,7 +1,7 @@
 import { media } from '../config/media';
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { Section } from './ui/Section';
-import { Divider, Jasmine } from './ornaments/Ornaments';
+import { CardCorners, Divider, Jasmine } from './ornaments/Ornaments';
 
 /**
  * The invitation itself — the words a guest would have found inside a folded
@@ -15,6 +15,7 @@ export function InvitationMessage() {
     <Section id="invitation" eyebrow="An invitation" title="Two Families. One Evening.">
       <div className="invitation">
         <div className="invitation__card card card--arch">
+          <CardCorners />
           <Jasmine className="invitation__bloom" size={30} />
 
           <p className="invitation__body">

@@ -3,7 +3,7 @@ import { blessingService, type Blessing } from '../services';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { seeded } from '../utils/geometry';
 import { Section } from './ui/Section';
-import { Jasmine } from './ornaments/Ornaments';
+import { CardCorners, Jasmine } from './ornaments/Ornaments';
 
 const MAX_BLOOMS = 44;
 const MAX_LENGTH = 400;
@@ -129,6 +129,7 @@ export function BlessingGarden() {
         </div>
 
         <form className="garden__form card" onSubmit={onSubmit} noValidate>
+          <CardCorners />
           {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
           <div className="honeypot" aria-hidden="true">
             <label htmlFor="blessing-website">Leave this empty</label>

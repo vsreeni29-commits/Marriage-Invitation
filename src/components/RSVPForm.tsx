@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { rsvpService, type Rsvp } from '../services';
 import { weddingConfig } from '../config/weddingConfig';
 import { Section } from './ui/Section';
-import { Emblem } from './ornaments/Ornaments';
+import { CardCorners, Emblem } from './ornaments/Ornaments';
 
 const MIN_GUESTS = 1;
 const MAX_GUESTS = 15;
@@ -136,6 +136,7 @@ export function RSVPForm() {
       tinted
     >
       <form className="rsvp card" onSubmit={onSubmit} noValidate>
+          <CardCorners />
         {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
         <div className="honeypot" aria-hidden="true">
           <label htmlFor="rsvp-website">Leave this empty</label>

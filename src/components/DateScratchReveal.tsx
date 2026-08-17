@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { Section } from './ui/Section';
-import { Jasmine } from './ornaments/Ornaments';
+import { CardCorners, Jasmine } from './ornaments/Ornaments';
 
 /** Reveal completes automatically once this much of the foil is gone. */
 const COMPLETE_AT = 0.55;
@@ -198,6 +198,7 @@ export function DateScratchReveal() {
     >
       <div className={`scratch ${revealed ? 'is-revealed' : ''}`}>
         <div className="scratch__surface card" ref={surfaceRef}>
+          <CardCorners />
           <div className="scratch__content">
             <Jasmine className="scratch__bloom" size={26} />
             <p className="scratch__weekday">{formattedEvent.weekday}</p>
