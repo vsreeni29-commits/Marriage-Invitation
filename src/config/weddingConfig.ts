@@ -30,7 +30,7 @@ export interface WeddingConfig {
     address: string;
     city: string;
     googleMapsUrl: string;
-    /** Approximate coordinates, used only for the decorative map card. */
+    /** Approximate coordinates, used only for the drawn map card. */
     coordinates: { lat: number; lng: number };
   };
   site: {
@@ -54,8 +54,8 @@ export const weddingConfig: WeddingConfig = {
   event: {
     name: 'Wedding Reception',
     date: '2026-09-17',
-    startTime: '18:00',
-    endTime: '22:00',
+    startTime: '18:30',
+    endTime: '22:30',
     timezone: 'Asia/Kolkata',
     utcOffset: '+05:30',
   },

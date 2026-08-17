@@ -189,7 +189,7 @@ function addDrum(buffer, stroke, at) {
     return;
   }
 
-  const level = stroke === 'mid' ? 0.05 : 0.028;
+  const level = stroke === 'mid' ? 0.028 : 0.016;
   const length = stroke === 'mid' ? 0.14 : 0.06;
   const band = makeBandpass(stroke === 'mid' ? 1400 : 2600, stroke === 'mid' ? 1.6 : 3.2);
   const start = Math.floor(at * SAMPLE_RATE);
@@ -242,7 +242,7 @@ const timeAt = (beat) => ORIGIN + beat * BEAT;
         semitone(pitch),
         timeAt(beat),
         beats * BEAT,
-        0.105,
+        0.088,
         leap ? semitone(last) : undefined,
       );
       last = pitch;
@@ -258,7 +258,7 @@ const timeAt = (beat) => ORIGIN + beat * BEAT;
   let beat = 0;
   for (let i = 0; beat < TOTAL_BEATS * LOOPS; i += 1) {
     const [pitch, beats] = FLUTE[i % FLUTE.length];
-    if (pitch !== null) addFlute(buffer, semitone(pitch), timeAt(beat), beats * BEAT * 0.94, 0.062);
+    if (pitch !== null) addFlute(buffer, semitone(pitch), timeAt(beat), beats * BEAT * 0.94, 0.072);
     beat += beats;
   }
 }

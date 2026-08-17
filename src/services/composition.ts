@@ -17,7 +17,7 @@
 export type Note = [number | null, number];
 
 export const ROOT = 293.66; // D4
-export const BEAT = 0.46; // seconds — unhurried
+export const BEAT = 0.56; // seconds — background pace, not performance pace
 export const BEATS_PER_BAR = 3;
 
 export const semitone = (steps: number) => ROOT * Math.pow(2, steps / 12);

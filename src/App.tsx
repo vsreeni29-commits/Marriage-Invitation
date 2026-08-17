@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MusicProvider, useMusic } from './context/MusicContext';
+import { MusicProvider } from './context/MusicContext';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { InvitationEntry } from './components/InvitationEntry';
 import { FloatingNav } from './components/FloatingNav';
@@ -11,7 +11,6 @@ import { DateScratchReveal } from './components/DateScratchReveal';
 import { Countdown } from './components/Countdown';
 import { ReceptionDetails } from './components/ReceptionDetails';
 import { CulturalQuote } from './components/CulturalQuote';
-import { OurSong } from './components/OurSong';
 import { Venue } from './components/Venue';
 import { BlessingGarden } from './components/BlessingGarden';
 import { RSVPForm } from './components/RSVPForm';
@@ -22,7 +21,6 @@ import { JaaliBackdrop, SilkBorder } from './components/ornaments/Ornaments';
 const ENTERED_KEY = 'rs:entered:v1';
 
 function Invitation() {
-  const { setPlaying } = useMusic();
   const shellRef = useRef<HTMLDivElement>(null);
 
   // Replay the opening once per session, not on every refresh or back-navigation.
@@ -34,19 +32,16 @@ function Invitation() {
     }
   });
 
-  const onEnter = useCallback(
-    (withMusic: boolean) => {
-      setEntered(true);
-      try {
-        window.sessionStorage.setItem(ENTERED_KEY, 'yes');
-      } catch {
-        // Non-fatal: the opening will simply show again next time.
-      }
-      // The click is the gesture browsers require before audio may start.
-      if (withMusic) setPlaying(true);
-    },
-    [setPlaying],
-  );
+  // Music is started by the opening itself, inside the tap handler, so that
+  // mobile Safari still counts it as the gesture that unlocks audio.
+  const onEnter = useCallback(() => {
+    setEntered(true);
+    try {
+      window.sessionStorage.setItem(ENTERED_KEY, 'yes');
+    } catch {
+      // Non-fatal: the opening will simply show again next time.
+    }
+  }, []);
 
   // While the opening is up, the page behind it is inert for pointer, keyboard
   // and screen-reader alike.
@@ -107,10 +102,6 @@ function Invitation() {
 
           <ErrorBoundary label="quote">
             <CulturalQuote />
-          </ErrorBoundary>
-
-          <ErrorBoundary label="song">
-            <OurSong />
           </ErrorBoundary>
 
           <Venue />

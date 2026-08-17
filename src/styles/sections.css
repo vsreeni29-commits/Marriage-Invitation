@@ -3,7 +3,7 @@
    ============================================================ */
 
 /* ------------------------------------------------------------------
-   Opening sequence
+   Opening sequence — a sealed envelope
    ------------------------------------------------------------------ */
 
 .entry {
@@ -25,102 +25,201 @@
   }
 }
 
+/* The last beat: the whole overlay clears to reveal the invitation. */
+.entry.is-opening {
+  animation: entry-fade 480ms var(--ease-out) 1270ms forwards;
+}
+
+@keyframes entry-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Light spilling out of the pocket as the flap falls open. */
+.entry__light {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(58% 38% at 50% 44%, rgba(255, 244, 214, 0.95), transparent 72%);
+  transition: opacity 760ms var(--ease-out) 240ms;
+}
+
+.entry.is-opening .entry__light {
+  opacity: 1;
+}
+
 .entry__inner {
+  position: relative;
   width: min(100%, 34rem);
   text-align: center;
 }
 
-.entry__stage {
+/* --- The envelope ------------------------------------------------- */
+
+.envelope {
   position: relative;
+  width: min(100%, 21rem);
   margin-inline: auto;
-  width: min(100%, 22rem);
-  aspect-ratio: 320 / 200;
+  aspect-ratio: 5 / 3.5;
+  perspective: 1300px;
+  animation: envelope-in 0.8s var(--ease-out) both;
 }
 
-.entry__stage > svg {
+@keyframes envelope-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+}
+
+/* The back panel the card sits against. */
+.envelope::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-s);
+  background: linear-gradient(180deg, var(--paper), var(--sand));
+  box-shadow: var(--shadow-lift);
+}
+
+.envelope__card {
+  position: absolute;
+  inset: 7% 8% 12%;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fffdf7, var(--ivory));
+  box-shadow: 0 10px 22px -16px rgba(42, 38, 34, 0.6);
+  transition: transform 940ms var(--ease-out) 400ms;
+}
+
+.entry.is-opening .envelope__card {
+  transform: translateY(-42%) scale(1.03);
+}
+
+.envelope__card-edge {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* The pocket: two side folds and the front panel, over the card. */
+.envelope__pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.envelope__fold {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, var(--cream), var(--paper));
+  box-shadow: inset 0 0 0 1px rgba(150, 116, 47, 0.14);
+}
+
+.envelope__fold--left {
+  clip-path: polygon(0 0, 50% 52%, 0 100%);
+}
+
+.envelope__fold--right {
+  background: linear-gradient(240deg, var(--cream), var(--paper));
+  clip-path: polygon(100% 0, 50% 52%, 100% 100%);
+}
+
+.envelope__front {
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 var(--radius-s) var(--radius-s);
+  background: linear-gradient(180deg, var(--paper), var(--sand));
+  clip-path: polygon(0 100%, 50% 46%, 100% 100%);
+}
+
+/* The flap, hinged on the top edge. */
+.envelope__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 54%;
+  z-index: 3;
+  transform-origin: 50% 0;
+  transition:
+    transform 880ms var(--ease-soft),
+    z-index 0s linear 420ms;
+}
+
+.envelope__flap-face {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--sand), var(--paper) 70%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  filter: drop-shadow(0 3px 4px rgba(42, 38, 34, 0.18));
+}
+
+.entry.is-opening .envelope__flap {
+  transform: rotateX(-172deg);
+  z-index: 0;
+}
+
+.envelope__seal {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  z-index: 4;
+  width: 4.8rem;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 6px 10px rgba(59, 16, 21, 0.42));
+  transition:
+    transform 620ms var(--ease-out),
+    opacity 520ms var(--ease-out);
+}
+
+.envelope__seal > svg {
+  display: block;
   width: 100%;
-  height: 100%;
 }
 
-.entry__motif path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: draw 1.15s var(--ease-out) forwards;
-}
-
-.entry__motif circle {
+.entry.is-opening .envelope__seal {
+  transform: translate(-50%, -50%) translateY(-30px) rotate(-19deg) scale(0.88);
   opacity: 0;
-  animation: fade-in 0.6s var(--ease-out) 0.75s forwards;
 }
 
-@keyframes draw {
-  to {
-    stroke-dashoffset: 0;
-  }
+/* --- What the card says ------------------------------------------- */
+
+.entry__initials {
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--gold);
 }
 
-@keyframes fade-in {
-  to {
-    opacity: 1;
-  }
-}
-
-/*
-   The two motifs are drawn at x=100 and x=220 in a 320-wide viewBox, so each
-   travels 60 user units to meet at the centre. Transform values here are in
-   SVG user units, and each group scales about its own centre.
-*/
-.entry__motif--kolam {
-  transform-origin: 100px 100px;
-  animation: entry-converge-left 1s var(--ease-soft) 1.05s forwards;
-}
-
-.entry__motif--geometry {
-  transform-origin: 220px 100px;
-  animation: entry-converge-right 1s var(--ease-soft) 1.05s forwards;
-}
-
-@keyframes entry-converge-left {
-  to {
-    transform: translateX(60px) scale(0.68);
-    opacity: 0.28;
-  }
-}
-
-@keyframes entry-converge-right {
-  to {
-    transform: translateX(-60px) scale(0.68);
-    opacity: 0.28;
-  }
+.entry__names {
+  margin-top: 0.1rem;
+  font-size: var(--script-s);
 }
 
 .entry__emblem {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  animation: emblem-bloom 1s var(--ease-out) 1.6s forwards;
+  width: 2.6rem;
+  margin: 0.2rem auto 0;
+  opacity: 0.9;
 }
 
-.entry__emblem-mark {
-  width: min(46%, 9rem);
-  filter: drop-shadow(0 0 22px var(--brass-glow));
+.entry__date {
+  margin-top: 0.15rem;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-mid);
+  color: var(--ink-soft);
 }
 
-@keyframes emblem-bloom {
-  from {
-    opacity: 0;
-    transform: scale(0.86);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.entry__initials,
-.entry__names,
 .entry__tagline,
 .entry__actions,
 .entry__hint {
@@ -128,30 +227,16 @@
   animation: rise 0.75s var(--ease-out) forwards;
 }
 
-.entry__initials {
-  animation-delay: 1.85s;
-  font-size: var(--step-0);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--gold);
-}
-
-.entry__names {
-  animation-delay: 2.05s;
-  margin-top: var(--space-xs);
-  font-size: var(--script-m);
-}
-
 .entry__tagline {
-  animation-delay: 2.25s;
-  margin-top: var(--space-xs);
+  animation-delay: 0.45s;
+  margin-top: var(--space-m);
   color: var(--ink-soft);
   font-size: var(--step-0);
   line-height: 1.7;
 }
 
 .entry__actions {
-  animation-delay: 2.4s;
+  animation-delay: 0.6s;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -159,10 +244,19 @@
 }
 
 .entry__hint {
-  animation-delay: 2.6s;
+  animation-delay: 0.75s;
   margin-top: var(--space-s);
   font-size: var(--step--1);
   color: var(--ink-faint);
+}
+
+/* Once it is opening, everything but the card gets out of the way. */
+.entry.is-opening .entry__tagline,
+.entry.is-opening .entry__actions,
+.entry.is-opening .entry__hint {
+  animation: none;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out);
 }
 
 @keyframes rise {
@@ -177,39 +271,23 @@
 }
 
 /* Reduced motion: the same composition, arrived at instantly. */
-.entry--still .entry__motif--kolam,
-.entry--still .entry__motif--geometry,
-.entry--still .entry__emblem,
-.entry--still .entry__motif path,
-.entry--still .entry__motif circle,
-.entry--still .entry__initials,
-.entry--still .entry__names,
+.entry--still,
+.entry--still .envelope,
 .entry--still .entry__tagline,
 .entry--still .entry__actions,
-.entry--still .entry__hint,
-.entry--still {
+.entry--still .entry__hint {
   animation: none;
   opacity: 1;
-}
-
-.entry--still .entry__motif path {
-  stroke-dashoffset: 0;
-}
-
-.entry--still .entry__motif--kolam {
-  transform: translateX(60px) scale(0.68);
-  opacity: 0.28;
-}
-
-.entry--still .entry__motif--geometry {
-  transform: translateX(-60px) scale(0.68);
-  opacity: 0.28;
 }
 
 @media (min-width: 30rem) {
   .entry__actions {
     flex-direction: row;
     justify-content: center;
+  }
+
+  .envelope {
+    width: min(100%, 24rem);
   }
 }
 
@@ -230,8 +308,15 @@
   position: relative;
   min-height: 100svh;
   display: grid;
-  place-items: center;
-  padding: clamp(4.5rem, 12vh, 7rem) var(--space-s) clamp(5rem, 14vh, 8rem);
+  justify-items: center;
+  /*
+     `safe` matters: the hero clips its overflow, and a centred grid whose
+     content is taller than the screen would be cut off at BOTH ends — the
+     tops of the names first. Safe alignment falls back to start instead,
+     so a small screen scrolls rather than beheading the calligraphy.
+  */
+  align-content: safe center;
+  padding: clamp(3.5rem, 9vh, 6rem) var(--space-s) clamp(4rem, 11vh, 7rem);
   overflow: hidden;
   isolation: isolate;
 }
@@ -1946,53 +2031,235 @@
 }
 
 /* ------------------------------------------------------------------
-   Our song
+   Wax seal — pressed on the envelope, and again on the RSVP
    ------------------------------------------------------------------ */
 
-.our-song {
+.wax__label--monogram {
+  font-family: var(--font-display);
+  font-size: 27px;
+  letter-spacing: 0.04em;
+}
+
+.wax__label--word {
+  font-family: var(--font-body);
+  font-size: 21px;
+  letter-spacing: 0.14em;
+}
+
+/* ------------------------------------------------------------------
+   Torn paper edges
+   ------------------------------------------------------------------ */
+
+.section--torn {
   position: relative;
-  z-index: 1;
-  padding-block: var(--space-l);
 }
 
-.our-song__card {
-  text-align: center;
+/* Without a tone of its own there is nothing for the tear to reveal. */
+.section--torn:not(.section--tint) {
+  background: linear-gradient(180deg, rgba(224, 203, 167, 0.42), rgba(241, 228, 205, 0.3));
 }
 
-.our-song__title {
-  margin-top: var(--space-2xs);
+.section__tear {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 26px;
+  color: var(--bg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.section__tear--top {
+  top: -1px;
+}
+
+.section__tear--bottom {
+  bottom: -1px;
+}
+
+.tear--flip {
+  transform: scaleY(-1);
+}
+
+/* ------------------------------------------------------------------
+   Dialog
+   ------------------------------------------------------------------ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+}
+
+.modal__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 34, 28, 0.52);
+  animation: scrim-in var(--dur-fast) var(--ease-out) both;
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal__panel {
+  position: relative;
+  width: min(100%, 34rem);
+  max-height: 92svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-s) var(--space-s) var(--space-m);
+  border-radius: var(--radius-m) var(--radius-m) 0 0;
+  background: linear-gradient(180deg, var(--ivory), var(--cream));
+  box-shadow: var(--shadow-lift);
+  animation: modal-in 420ms var(--ease-out) both;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--rule);
+}
+
+.modal__title {
+  font-family: var(--font-display);
   font-size: var(--step-2);
+  line-height: 1.15;
+  color: var(--heading);
+}
+
+.modal__close {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--ivory);
+  color: var(--ink-soft);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.modal__close:hover {
+  background: var(--sand);
   color: var(--forest);
 }
 
-.our-song__meta {
-  margin-top: 0.3rem;
-  font-size: var(--step--1);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+.modal__body {
+  margin-top: var(--space-s);
 }
 
-.our-song__flourish {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  margin-block: var(--space-s);
+@media (min-width: 40rem) {
+  .modal {
+    align-items: center;
+  }
+
+  .modal__panel {
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+  }
+}
+
+/* ------------------------------------------------------------------
+   RSVP — sealed until it is asked for
+   ------------------------------------------------------------------ */
+
+.rsvp__invite {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-s);
+  margin-top: var(--space-l);
+}
+
+.rsvp__seal {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.rsvp__seal > svg {
+  width: min(58vw, 9.5rem);
+  filter: drop-shadow(0 12px 20px rgba(59, 16, 21, 0.34));
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.rsvp__seal:hover > svg,
+.rsvp__seal:focus-visible > svg {
+  transform: translateY(-4px) rotate(-3deg) scale(1.03);
+}
+
+.rsvp__seal-hint {
+  display: grid;
+  justify-items: center;
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-mid);
+  text-transform: uppercase;
   color: var(--gold);
 }
 
-.our-song__note {
-  max-width: 24rem;
-  margin: 0 auto var(--space-m);
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  font-style: italic;
-  color: var(--ink-soft);
+.rsvp__seal-chevron {
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-bottom: 0.45rem;
+  border-top: 1px solid var(--gold);
+  border-left: 1px solid var(--gold);
+  transform: rotate(45deg);
 }
 
-.our-song__credit {
-  margin-top: var(--space-s);
-  font-size: var(--step--1);
-  color: var(--ink-faint);
+.rsvp__modal .rsvp {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Envelope paper grain — the weave shows through the folds, not under them. */
+.envelope__weave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* The jaali tile is a fixed 72px in user units. Drawing it into a double-size
+     box and halving it gives a finer weave — an emboss, not a print. */
+  width: 200%;
+  height: 200%;
+  transform: scale(0.5);
+  transform-origin: 0 0;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* The kasavu band is fixed to the top edge, so anchor jumps have to stop
+   clear of it or a section title lands underneath the weave. */
+:target,
+.section[id],
+.hero[id],
+[id='fusion'],
+[id='countdown'],
+[id='closing'] {
+  scroll-margin-top: 3.5rem;
 }
