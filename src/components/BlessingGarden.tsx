@@ -138,7 +138,9 @@ export function BlessingGarden() {
               className={`garden__plant ${blessing.id === justPlanted ? 'is-new' : ''}`}
               style={plant(index)}
             >
-              <GardenFlower kind={index + blessing.message.length} flip={index % 2 === 1} />
+              {/* Kinds 0 and 1 only: every blessing that has been sent is a
+                  flower in full bloom, never a bud still waiting to open. */}
+              <GardenFlower kind={(index + blessing.message.length) % 2} flip={index % 2 === 1} />
               {blessing.name && <span className="garden__tag">{blessing.name}</span>}
             </span>
           ))}

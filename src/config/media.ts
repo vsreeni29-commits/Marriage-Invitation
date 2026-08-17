@@ -56,7 +56,7 @@ export const media: MediaConfig = {
   },
   gallery: [],
   audio: {
-    src: null,
-    credit: 'Original ambient instrumental generated in the browser for this invitation.',
+    src: withBase('audio/ambience.mp3'),
+    credit: 'Thattathin Marayathu — instrumental theme.',
   },
 };

@@ -22,7 +22,7 @@ const CAPTIONS = [
   },
   {
     title: 'One motif',
-    body: 'The three become a single mark — not one tradition beside another, but a pattern that only exists because both are here.',
+    body: 'The two become a single mark — not one tradition beside another, but a pattern that only exists because both are here.',
   },
 ];
 
@@ -39,9 +39,13 @@ export function CulturalFusion() {
   // still high on screen rather than as it leaves — on a phone the old window
   // put the final emblem above the fold, so the motif never appeared to finish.
   // One comfortable swipe now carries it from first line to finished mark.
+  // The morph saturates at p = 0.86, and this window is chosen so that *that*
+  // moment — the beat where the caption reads "One motif" — puts the finished
+  // mark on the exact vertical centre of a phone screen, rather than somewhere
+  // on its way past.
   const { ref, progress } = useScrollProgress<HTMLDivElement>(!reducedMotion, {
     from: 1,
-    to: 0.42,
+    to: 0.38,
   });
 
   const p = reducedMotion ? 1 : progress;
@@ -49,8 +53,8 @@ export function CulturalFusion() {
   const kolamDraw = stage(p, 0.03, 0.26);
   const geometryDraw = stage(p, 0.22, 0.48);
   // Each layer has its say and then gets out of the way. They used to bottom
-  // out around a third visible, so the emblem landed on top of three other
-  // motifs and the "one motif" beat read as four overlapping ones.
+  // out around a third visible, so the emblem landed on top of the other
+  // motifs and the "one motif" beat read as several overlapping ones.
   const kolamFade = 1 - stage(p, 0.36, 0.8) * 0.94;
   const geometryFade = stage(p, 0.22, 0.36) - stage(p, 0.45, 0.82) * 0.92;
   const bloom = stage(p, 0.44, 0.7) * (1 - stage(p, 0.62, 0.84) * 0.9);
@@ -197,7 +201,7 @@ export function CulturalFusion() {
               </g>
             </svg>
 
-            {/* Layer 4 — the emblem the three resolve into */}
+            {/* Layer 4 — the emblem the two resolve into */}
             <Emblem className="fusion__emblem" />
           </div>
 
