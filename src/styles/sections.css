@@ -276,11 +276,22 @@
   filter: saturate(0.85);
 }
 
+/*
+   An arch is narrow at the top. Content has to start below the point where
+   the curve reaches full width, or the first line pokes out through it.
+*/
 .hero__frame {
   position: relative;
   width: min(100%, 32rem);
-  padding: clamp(2.5rem, 8vw, 4rem) clamp(1.2rem, 5vw, 2.5rem);
+  padding: clamp(5.5rem, 20vw, 8rem) clamp(2rem, 8vw, 3.5rem) clamp(2.5rem, 8vw, 4rem);
   text-align: center;
+}
+
+/* The topmost lines sit where the arch is still narrowing. */
+.hero__eyebrow,
+.hero__names {
+  width: min(100%, 22rem);
+  margin-inline: auto;
 }
 
 .hero__arch {

@@ -5,7 +5,7 @@
  *
  * Uses the same emblem geometry as the site, so the preview card and the
  * invitation are unmistakably the same object. Requires `sharp` and the
- * Pinyon Script / Cormorant Garamond / Jost fonts installed locally; the generated PNG is
+ * Great Vibes / Cormorant Garamond / Jost fonts installed locally; the generated PNG is
  * committed, so this only needs re-running when the artwork changes.
  */
 
@@ -136,8 +136,8 @@ const shareSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="$
 
   ${emblem(W / 2, 178, 0.8)}
 
-  <text x="${W / 2}" y="392" text-anchor="middle" font-family="Pinyon Script"
-        font-size="128" fill="#a9854b">Rinsha <tspan font-family="Cormorant Garamond" font-style="italic" font-size="58">&amp;</tspan> Sreeni</text>
+  <text x="${W / 2}" y="392" text-anchor="middle" font-family="Great Vibes"
+        font-size="112" fill="#a9854b">Rinsha <tspan font-family="Cormorant Garamond" font-style="italic" font-size="58">&amp;</tspan> Sreeni</text>
 
   <text x="${W / 2}" y="444" text-anchor="middle" font-family="Jost" font-size="21"
         letter-spacing="8" fill="#6b6055">TWO TRADITIONS · TWO CULTURES · ONE BEGINNING</text>
