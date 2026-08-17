@@ -47,10 +47,13 @@ export function CulturalFusion() {
   const p = reducedMotion ? 1 : progress;
 
   const kolamDraw = stage(p, 0.03, 0.26);
-  const kolamFade = 1 - stage(p, 0.36, 0.66) * 0.72;
   const geometryDraw = stage(p, 0.22, 0.48);
-  const geometryFade = stage(p, 0.22, 0.36) - stage(p, 0.45, 0.72) * 0.68;
-  const bloom = stage(p, 0.44, 0.7);
+  // Each layer has its say and then gets out of the way. They used to bottom
+  // out around a third visible, so the emblem landed on top of three other
+  // motifs and the "one motif" beat read as four overlapping ones.
+  const kolamFade = 1 - stage(p, 0.36, 0.8) * 0.94;
+  const geometryFade = stage(p, 0.22, 0.36) - stage(p, 0.45, 0.82) * 0.92;
+  const bloom = stage(p, 0.44, 0.7) * (1 - stage(p, 0.62, 0.84) * 0.9);
   const unify = stage(p, 0.6, 0.86);
   const rotation = (1 - unify) * -14;
 
@@ -103,7 +106,7 @@ export function CulturalFusion() {
                 style={{ transform: `rotate(${(1 - unify) * 12}deg)`, transformOrigin: '160px 160px' }}
               >
                 <path
-                  d={loopRingPath(160, 160, 96, 12, 0.42)}
+                  d={loopRingPath(160, 160, 88, 12, 1.5)}
                   pathLength={1}
                   stroke="#b26644"
                   strokeWidth="1.3"
@@ -112,7 +115,7 @@ export function CulturalFusion() {
                   strokeDashoffset={1 - kolamDraw}
                 />
                 <path
-                  d={loopRingPath(160, 160, 54, 8, 0.5)}
+                  d={loopRingPath(160, 160, 52, 8, 1.7)}
                   pathLength={1}
                   stroke="#b26644"
                   strokeWidth="1.1"

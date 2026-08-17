@@ -87,25 +87,42 @@ export const petalRosettePath = (
 };
 
 /**
- * A continuous chain of loops around a circle — the kolam layer.
- * Traditional kolam is drawn as one unbroken line looping around a grid of
- * dots, and that is exactly what this produces.
+ * A continuous chain of loops around a ring of dots — the kolam layer.
+ *
+ * Traditional kolam is one unbroken line that curls around each dot in turn,
+ * and the curl is the whole character of it. Each span between dots is a cubic
+ * whose two control points *cross* — that crossing is what makes the line turn
+ * back on itself and form a loop rather than just bowing outward.
+ *
+ * This used to be built from SVG arcs with the large-arc flag set, which drew
+ * the major arc of a circle barely wider than the gap between dots — i.e.
+ * almost a full circle per span. The loops ballooned several times past the
+ * radius they were supposed to sit on and collided with everything around
+ * them, which is what made the resolved emblem read as a tangle.
+ *
+ * `bulge` is how far out the loop reaches, as a multiple of the ring radius;
+ * `spread` is how hard the controls cross, and so how pronounced the curl is.
+ * Past about 1.1 the loops start to lean into each other and eight of them read
+ * as four pairs, so the default keeps each curl square over its own dot.
  */
 export const loopRingPath = (
   cx: number,
   cy: number,
   radius: number,
   loops = 8,
-  loopSize = 0.46,
+  bulge = 1.75,
   rotation = 0,
+  spread = 1,
 ): string => {
   const step = 360 / loops;
-  const r = radius * loopSize;
-  const start = polar(cx, cy, radius, rotation);
-  let d = `M ${pt(start)}`;
-  for (let i = 1; i <= loops; i += 1) {
-    const next = polar(cx, cy, radius, rotation + i * step);
-    d += ` A ${fmt(r)} ${fmt(r)} 0 1 1 ${pt(next)}`;
+  const dot = (i: number) => polar(cx, cy, radius, rotation + i * step);
+
+  let d = `M ${pt(dot(0))}`;
+  for (let i = 0; i < loops; i += 1) {
+    const a = rotation + i * step;
+    const c1 = polar(cx, cy, radius * bulge, a + step * spread);
+    const c2 = polar(cx, cy, radius * bulge, a + step - step * spread);
+    d += ` C ${pt(c1)} ${pt(c2)} ${pt(dot(i + 1))}`;
   }
   return `${d} Z`;
 };
