@@ -35,16 +35,23 @@ const CAPTIONS = [
  */
 export function CulturalFusion() {
   const reducedMotion = useReducedMotion();
-  const { ref, progress } = useScrollProgress<HTMLDivElement>(!reducedMotion);
+  // The morph is measured against the art itself, and finishes while the art is
+  // still high on screen rather than as it leaves — on a phone the old window
+  // put the final emblem above the fold, so the motif never appeared to finish.
+  // One comfortable swipe now carries it from first line to finished mark.
+  const { ref, progress } = useScrollProgress<HTMLDivElement>(!reducedMotion, {
+    from: 1,
+    to: 0.42,
+  });
 
   const p = reducedMotion ? 1 : progress;
 
-  const kolamDraw = stage(p, 0.06, 0.32);
-  const kolamFade = 1 - stage(p, 0.42, 0.72) * 0.72;
-  const geometryDraw = stage(p, 0.26, 0.54);
-  const geometryFade = stage(p, 0.26, 0.42) - stage(p, 0.5, 0.78) * 0.68;
-  const bloom = stage(p, 0.48, 0.76);
-  const unify = stage(p, 0.66, 0.94);
+  const kolamDraw = stage(p, 0.03, 0.26);
+  const kolamFade = 1 - stage(p, 0.36, 0.66) * 0.72;
+  const geometryDraw = stage(p, 0.22, 0.48);
+  const geometryFade = stage(p, 0.22, 0.36) - stage(p, 0.45, 0.72) * 0.68;
+  const bloom = stage(p, 0.44, 0.7);
+  const unify = stage(p, 0.6, 0.86);
   const rotation = (1 - unify) * -14;
 
   const activeCaption = Math.min(
@@ -64,9 +71,12 @@ export function CulturalFusion() {
           Where the Patterns Meet
         </h2>
 
-        <div className="fusion__stage" ref={ref}>
+        <div className="fusion__stage">
+          {/* The box itself never transforms — the layers inside it rotate — so
+              measuring it against the viewport stays stable as the morph runs. */}
           <div
             className="fusion__art"
+            ref={ref}
             aria-hidden="true"
             style={
               {
