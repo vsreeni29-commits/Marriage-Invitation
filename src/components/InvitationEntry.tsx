@@ -8,8 +8,13 @@ interface InvitationEntryProps {
   onEnter: () => void;
 }
 
-/** How long the envelope takes to open before the invitation takes over. */
-const OPEN_MS = 1750;
+/**
+ * How long the envelope takes to open before the invitation takes over.
+ * Slow on purpose: the seal takes light, the seam blazes, the flap falls, the
+ * card rises. Rushing it is what makes an opening feel like a page transition
+ * instead of an occasion.
+ */
+const OPEN_MS = 3400;
 
 /**
  * The opening.
@@ -106,11 +111,16 @@ export function InvitationEntry({ onEnter }: InvitationEntryProps) {
             <JaaliBackdrop className="envelope__weave" />
           </div>
 
+          {/* Light escaping along the seam as the flap lifts. */}
+          <span className="envelope__seam" aria-hidden="true" />
+
           {/* The flap, and the wax holding it shut. */}
           <div className="envelope__flap" aria-hidden="true">
             <span className="envelope__flap-face" />
           </div>
+
           <span className="envelope__seal" aria-hidden="true">
+            <span className="envelope__halo" />
             <WaxSeal label={couple.initials} />
           </span>
         </div>

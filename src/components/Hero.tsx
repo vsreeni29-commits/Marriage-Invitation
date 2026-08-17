@@ -1,7 +1,15 @@
 import { media } from '../config/media';
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { ArchOutline, BrassLamp, Emblem, Mankolam, PalmFrond, PetalField } from './ornaments/Ornaments';
+import {
+  ArchOutline,
+  BrassLamp,
+  Emblem,
+  GardenBough,
+  Mankolam,
+  PetalField,
+  SwanLake,
+} from './ornaments/Ornaments';
 
 /**
  * The hero.
@@ -18,12 +26,16 @@ export function Hero() {
   return (
     <header className="hero" id="top">
       <div className="hero__backdrop" aria-hidden="true">
-        <PalmFrond className="hero__frond hero__frond--left" />
-        <PalmFrond className="hero__frond hero__frond--right" />
+        {/* The garden the envelope opens onto: boughs arching over, a lake
+            below, and the light of an evening between them. */}
+        <span className="hero__glow" />
+        <GardenBough className="hero__bough hero__bough--left" />
+        <GardenBough className="hero__bough hero__bough--right" />
         {/* Hanging brass lamps — light and welcome, in both our houses. */}
         <BrassLamp className="hero__lamp hero__lamp--left" />
         <BrassLamp className="hero__lamp hero__lamp--right" />
         {!reducedMotion && <PetalField count={12} />}
+        <SwanLake className="hero__lake" />
       </div>
 
       {photo && (
