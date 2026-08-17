@@ -54,48 +54,45 @@ export const Emblem = memo(function Emblem({ className, weight = 1 }: OrnamentPr
         </linearGradient>
       </defs>
 
-      <circle cx={c} cy={c} r="72" fill="url(#emblem-glow)" />
+      <circle cx={c} cy={c} r="58" fill="url(#emblem-glow)" />
 
-      {/* Kasavu thread */}
-      <circle
-        cx={c}
-        cy={c}
-        r="92"
+      {/*
+         Four bands, each with air around it, reading inward: the kasavu thread,
+         the kolam line looping around its dots, the eight-point star, and the
+         bloom at the centre. Every radius here is chosen so that no two bands
+         touch — the previous version stacked all four in the same annulus and
+         the motifs simply collided.
+      */}
+
+      {/* Kasavu thread — the outermost hairline */}
+      <circle cx={c} cy={c} r="90" stroke="#a9854b" strokeOpacity="0.3" strokeWidth={0.7 * weight} />
+
+      {/* Kolam: one unbroken line, curling around eight dots */}
+      <path
+        d={loopRingPath(c, c, 60, 8, 1.7)}
         stroke="#a9854b"
-        strokeOpacity="0.5"
-        strokeWidth={0.9 * weight}
-        strokeDasharray="1.5 7"
+        strokeOpacity="0.9"
+        strokeWidth={1.15 * weight}
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
-      <circle cx={c} cy={c} r="86" stroke="#a9854b" strokeOpacity="0.35" strokeWidth={0.7 * weight} />
-
-      {/* Eight-point star: two offset squares */}
-      <path d={polygonPath(c, c, 78, 4, 0)} stroke="#35594a" strokeOpacity="0.55" strokeWidth={1 * weight} strokeLinejoin="round" />
-      <path d={polygonPath(c, c, 78, 4, 45)} stroke="#35594a" strokeOpacity="0.55" strokeWidth={1 * weight} strokeLinejoin="round" />
-      <path d={polygonPath(c, c, 62, 8, 22.5)} stroke="#a9854b" strokeOpacity="0.6" strokeWidth={0.9 * weight} strokeLinejoin="round" />
-
-      {/* Kolam dots and the unbroken looping line */}
-      {dotRing(c, c, 70, 8, 22.5).map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={1.7} fill="#a9854b" fillOpacity="0.7" />
+      {dotRing(c, c, 60, 8, 0).map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r={1.9} fill="#a9854b" fillOpacity="0.85" />
       ))}
-      <path
-        d={loopRingPath(c, c, 44, 8, 0.5)}
-        stroke="#a9854b"
-        strokeOpacity="0.85"
-        strokeWidth={1.05 * weight}
-        strokeLinecap="round"
-      />
 
-      {/* Bloom */}
+      {/* Eight-point star: two offset squares, well inside the kolam */}
+      <path d={polygonPath(c, c, 52, 4, 0)} stroke="#35594a" strokeOpacity="0.85" strokeWidth={1.15 * weight} strokeLinejoin="round" />
+      <path d={polygonPath(c, c, 52, 4, 45)} stroke="#35594a" strokeOpacity="0.85" strokeWidth={1.15 * weight} strokeLinejoin="round" />
+
+      {/* Bloom — smallest, so the eye lands here last and stays */}
       <path
-        d={petalRosettePath(c, c, 36, 8, 22.5, 13)}
+        d={petalRosettePath(c, c, 26, 8, 22.5, 22)}
         fill="url(#emblem-petal)"
         stroke="#6d8b74"
-        strokeOpacity="0.55"
-        strokeWidth={0.75 * weight}
+        strokeOpacity="0.7"
+        strokeWidth={0.8 * weight}
       />
-      <circle cx={c} cy={c} r="4.6" fill="#a9854b" fillOpacity="0.85" />
-      <circle cx={c} cy={c} r="11" stroke="#a9854b" strokeOpacity="0.45" strokeWidth={0.7 * weight} />
+      <circle cx={c} cy={c} r="4.2" fill="#a9854b" />
     </svg>
   );
 });
@@ -114,8 +111,8 @@ export const KolamMotif = memo(function KolamMotif({ className, weight = 1 }: Or
       {dotRing(c, c, 40, 8, 22.5).map((p, i) => (
         <circle key={`i${i}`} cx={p.x} cy={p.y} r={1.4} fill="currentColor" fillOpacity="0.45" />
       ))}
-      <path d={loopRingPath(c, c, 62, 12, 0.42)} stroke="currentColor" strokeWidth={1.1 * weight} strokeLinecap="round" />
-      <path d={loopRingPath(c, c, 30, 6, 0.55)} stroke="currentColor" strokeWidth={1 * weight} strokeLinecap="round" />
+      <path d={loopRingPath(c, c, 58, 12, 1.5)} stroke="currentColor" strokeWidth={1.1 * weight} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={loopRingPath(c, c, 26, 6, 1.55)} stroke="currentColor" strokeWidth={1 * weight} strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={c} cy={c} r="6" stroke="currentColor" strokeWidth={1 * weight} />
     </svg>
   );
@@ -173,6 +170,93 @@ export const Jasmine = memo(function Jasmine({ className, size = 24 }: JasminePr
       ))}
       <circle cx="20" cy="20" r="3.1" fill="#c3a570" />
       <circle cx="20" cy="20" r="1.3" fill="#8f6f38" fillOpacity="0.7" />
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Garden flowers — one per blessing, growing on a stem.
+ *
+ * Drawn standing on the bottom edge of the viewBox so they plant on the
+ * bed's ground line however they are scaled. Three kinds, so a full
+ * garden reads as planted rather than stamped.
+ * ------------------------------------------------------------------ */
+
+interface GardenFlowerProps {
+  className?: string;
+  /** 0 jasmine · 1 open bloom · 2 bud — anything else wraps round. */
+  kind?: number;
+  /** Mirrors the stem so neighbours don't all lean the same way. */
+  flip?: boolean;
+}
+
+export const GardenFlower = memo(function GardenFlower({
+  className,
+  kind = 0,
+  flip = false,
+}: GardenFlowerProps) {
+  const type = ((kind % 3) + 3) % 3;
+  const petals = type === 1 ? 5 : 6;
+  const headY = 26;
+
+  return (
+    <svg
+      className={`flower flower--${type} ${className ?? ''}`}
+      viewBox="0 0 44 100"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      style={flip ? { transform: 'scaleX(-1)' } : undefined}
+    >
+      {/* Stem, drawn from the soil up to the head. */}
+      <path
+        className="flower__stem"
+        d={`M 22 100 C ${flip ? 15 : 29} 78 ${flip ? 27 : 17} 54 22 ${headY + 6}`}
+        stroke="#6d8b74"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        className="flower__leaf"
+        d={`M 22 72 C 10 68 6 60 8 52 C 16 54 21 62 22 72 Z`}
+        fill="#6d8b74"
+        fillOpacity="0.55"
+      />
+
+      <g className="flower__head" style={{ transformOrigin: `22px ${headY}px` }}>
+        {type === 2 ? (
+          // A bud: still closed, for the newest and the furthest away.
+          <>
+            <path
+              d={`M 22 ${headY - 9} C 28 ${headY - 6} 28 ${headY + 5} 22 ${headY + 8} C 16 ${headY + 5} 16 ${headY - 6} 22 ${headY - 9} Z`}
+              fill="#f6ecd8"
+              stroke="#c3a570"
+              strokeOpacity="0.7"
+              strokeWidth="0.9"
+            />
+            <path d={`M 22 ${headY + 8} l 0 4`} stroke="#6d8b74" strokeWidth="1.4" strokeLinecap="round" />
+          </>
+        ) : (
+          <>
+            {Array.from({ length: petals }, (_, i) => (
+              <ellipse
+                key={i}
+                cx="22"
+                cy={headY - 7.5}
+                rx={type === 1 ? 5.6 : 4.4}
+                ry={type === 1 ? 7.6 : 8.4}
+                fill={type === 1 ? '#f7e3d6' : '#fdf7ea'}
+                stroke="#c3a570"
+                strokeOpacity="0.45"
+                strokeWidth="0.6"
+                transform={`rotate(${(360 / petals) * i} 22 ${headY})`}
+              />
+            ))}
+            <circle cx="22" cy={headY} r="3.1" fill="#c9a05a" />
+            <circle cx="22" cy={headY} r="1.2" fill="#8f6f38" fillOpacity="0.75" />
+          </>
+        )}
+      </g>
     </svg>
   );
 });
@@ -305,7 +389,7 @@ export const WaxSeal = memo(function WaxSeal({
 
       {/* A kolam loop ring, pressed into the wax by the stamp. */}
       <path
-        d={loopRingPath(60, 60, 34, 8, 0.44)}
+        d={loopRingPath(60, 60, 30, 8, 1.6)}
         stroke="#e9cf9c"
         strokeOpacity="0.34"
         strokeWidth="0.9"

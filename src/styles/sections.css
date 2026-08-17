@@ -960,11 +960,19 @@
 .scratch__surface {
   position: relative;
   width: min(100%, 26rem);
-  aspect-ratio: 4 / 3;
+  /*
+     4:3 is the shape we want, but it has to be a floor rather than a cage.
+     As an `aspect-ratio` it was a cage: `overflow: hidden` collapses a box's
+     automatic minimum size to zero, so the ratio won and the last line of the
+     date — the time — was cut off at every width. Expressed as a minimum with
+     the height left automatic, the card keeps its proportions when the type
+     fits and simply grows when it doesn't.
+  */
+  min-height: min(72vw, 19.5rem);
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: var(--space-s);
+  padding: var(--space-m) var(--space-s);
 }
 
 .scratch__content {
@@ -1364,83 +1372,219 @@
 }
 
 /* ------------------------------------------------------------------
-   Blessing garden
+   Blessing garden — a bed that fills up as people write
    ------------------------------------------------------------------ */
 
 .garden {
   display: grid;
   gap: var(--space-m);
+  margin-top: var(--space-l);
 }
 
 .garden__field {
   position: relative;
-  min-height: 15rem;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-m);
-  background:
-    radial-gradient(80% 60% at 50% 100%, rgba(109, 139, 116, 0.18), transparent 70%),
-    linear-gradient(180deg, rgba(252, 249, 243, 0.9), rgba(240, 231, 216, 0.6));
+  min-height: 17rem;
   overflow: hidden;
+  border-radius: var(--radius-m);
+  box-shadow:
+    inset 0 0 0 1px var(--rule),
+    var(--shadow-soft);
+  isolation: isolate;
 }
 
-.garden__horizon {
+/* Evening light over the garden, and the bed it stands in. */
+.garden__sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 42% at 50% 2%, rgba(255, 247, 226, 0.95), transparent 72%),
+    linear-gradient(180deg, var(--ivory) 0%, #f4ecd9 40%, #ece2c8 62%, #e4dcc0 100%);
+}
+
+/*
+   The bed itself, and it has to be deep: every flower is planted somewhere
+   between 4% and 46% up, and ground that stopped short of that left the ones
+   at the back standing in mid-air.
+*/
+/* No hard horizon: a drawn line across the bed reads as a wall behind it. */
+.garden__soil {
+  position: absolute;
+  inset: 30% 0 0;
+  background: linear-gradient(
+    180deg,
+    rgba(133, 154, 118, 0) 0%,
+    rgba(133, 154, 118, 0.16) 26%,
+    rgba(121, 145, 112, 0.28) 62%,
+    rgba(150, 116, 47, 0.26) 100%
+  );
+}
+
+/* Grass along the front edge — irregular tufts, not a row of teeth. */
+.garden__grass {
   position: absolute;
   inset: auto 0 0;
-  height: 34%;
-  background: linear-gradient(180deg, transparent, rgba(109, 139, 116, 0.22));
+  height: 2.4rem;
+  opacity: 0.5;
+  background-repeat: repeat-x;
+  background-size: 137px 100%;
+  background-position: 0 100%;
+  background-image:
+    radial-gradient(7px 30px at 12px 108%, rgba(93, 124, 100, 0.5) 58%, transparent 60%),
+    radial-gradient(5px 19px at 34px 106%, rgba(109, 139, 116, 0.42) 58%, transparent 60%),
+    radial-gradient(8px 38px at 58px 108%, rgba(93, 124, 100, 0.4) 58%, transparent 60%),
+    radial-gradient(5px 24px at 79px 106%, rgba(109, 139, 116, 0.34) 58%, transparent 60%),
+    radial-gradient(9px 16px at 104px 106%, rgba(109, 139, 116, 0.3) 58%, transparent 60%),
+    radial-gradient(6px 33px at 125px 108%, rgba(93, 124, 100, 0.44) 58%, transparent 60%);
 }
 
-.garden__bloom {
+/* --- One planted blessing ------------------------------------------ */
+
+.garden__plant {
   position: absolute;
-  width: var(--bloom-size, 20px);
-  color: var(--gold-soft);
-  filter: drop-shadow(0 0 8px var(--brass-glow));
-  animation: bloom-float 9s var(--ease-soft) infinite;
+  z-index: 1;
+  width: calc(3.6rem * var(--grow, 1));
+  transform-origin: 50% 100%;
+  opacity: var(--haze, 1);
+  animation: plant-grow 900ms var(--ease-out) both;
 }
 
-.garden__bloom svg {
+.garden__plant > svg {
   width: 100%;
   height: auto;
+  transform-origin: 50% 100%;
+  animation: plant-sway 7s var(--ease-soft) infinite alternate;
+  animation-delay: inherit;
 }
 
-@keyframes bloom-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.75;
+@keyframes plant-grow {
+  from {
+    transform: translateY(14%) scaleY(0.2);
+    opacity: 0;
   }
-  50% {
-    transform: translateY(-8px) rotate(8deg);
+}
+
+@keyframes plant-sway {
+  from {
+    transform: rotate(calc(var(--sway, 0) * -1.1deg));
+  }
+  to {
+    transform: rotate(calc(var(--sway, 0) * 1.4deg));
+  }
+}
+
+/* The head opens a beat after the stem has grown. */
+.flower__head {
+  animation: head-open 700ms var(--ease-out) 260ms both;
+}
+
+@keyframes head-open {
+  from {
+    transform: scale(0.1) rotate(-25deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
     opacity: 1;
   }
 }
 
-.garden__field--still .garden__bloom {
-  animation: none;
+.flower__stem {
+  stroke-dasharray: 90;
+  stroke-dashoffset: 0;
+  animation: stem-draw 620ms var(--ease-out) both;
+}
+
+@keyframes stem-draw {
+  from {
+    stroke-dashoffset: 90;
+  }
+}
+
+.flower__leaf {
+  animation: head-open 520ms var(--ease-out) 380ms both;
+  transform-origin: 22px 66px;
+}
+
+/* The one just planted: brighter, taller, with a moment of light on it. */
+.garden__plant.is-new {
+  z-index: 3;
+  --haze: 1;
+  --grow: 1.15;
+  filter: drop-shadow(0 0 14px rgba(201, 160, 90, 0.75));
+  animation: plant-grow 1100ms var(--ease-out) both;
+}
+
+.garden__tag {
+  position: absolute;
+  bottom: 92%;
+  left: 50%;
+  transform: translate(-50%, 4px);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(247, 239, 223, 0.94);
+  box-shadow: 0 0 0 1px var(--rule);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--ink-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.garden__plant:hover .garden__tag,
+.garden__plant.is-new .garden__tag {
+  opacity: 1;
 }
 
 .garden__empty {
   position: absolute;
-  inset: 0;
+  inset: auto 0 32%;
   display: grid;
-  place-items: center;
-  color: var(--ink-faint);
+  gap: 0.2rem;
+  text-align: center;
   font-family: var(--font-display);
-  font-style: italic;
   font-size: var(--step-1);
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.garden__empty span {
+  font-size: var(--step--1);
+  font-style: normal;
+  letter-spacing: var(--tracking-mid);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Reduced motion: a full garden, standing still. */
+.garden__field--still .garden__plant,
+.garden__field--still .garden__plant > svg,
+.garden__field--still .flower__head,
+.garden__field--still .flower__leaf,
+.garden__field--still .flower__stem {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  stroke-dashoffset: 0;
 }
 
 .garden__form {
-  align-self: start;
+  padding: var(--space-m) var(--space-s);
 }
 
-.field__optional,
-.field__count {
-  font-size: var(--step--1);
-  color: var(--ink-faint);
-  text-transform: none;
-  letter-spacing: normal;
+@media (min-width: 52rem) {
+  .garden {
+    grid-template-columns: 1.15fr 1fr;
+    align-items: stretch;
+  }
+
+  .garden__field {
+    min-height: 21rem;
+  }
 }
+
+/* --- The blessings themselves, in words ---------------------------- */
 
 .garden__wall {
   margin-top: var(--space-l);

@@ -3,23 +3,30 @@ import { blessingService, type Blessing } from '../services';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { seeded } from '../utils/geometry';
 import { Section } from './ui/Section';
-import { CardCorners, Jasmine } from './ornaments/Ornaments';
+import { CardCorners, GardenFlower } from './ornaments/Ornaments';
 
-const MAX_BLOOMS = 44;
+const MAX_BLOOMS = 40;
 const MAX_LENGTH = 400;
 
-/** Deterministic placement, so the garden looks the same on every visit. */
-function bloomStyle(index: number): CSSProperties {
+/**
+ * Where each flower is planted.
+ *
+ * The golden ratio spreads successive flowers across the bed instead of
+ * clumping them the way plain randomness does, so the garden fills evenly
+ * however many blessings arrive. Depth then does the rest: a flower planted
+ * further back sits higher, stands smaller and pales into the haze.
+ */
+function plant(index: number): CSSProperties {
   const random = seeded(index * 977 + 13);
-  const left = 4 + random() * 92;
-  const top = 8 + random() * 78;
-  const size = 15 + random() * 16;
-  const delay = random() * 6;
+  const left = ((index * 0.61803398875 + random() * 0.06) % 1) * 92 + 4;
+  const depth = random(); // 0 = front of the bed, 1 = back
   return {
     left: `${left.toFixed(2)}%`,
-    top: `${top.toFixed(2)}%`,
-    '--bloom-size': `${size.toFixed(1)}px`,
-    animationDelay: `${delay.toFixed(2)}s`,
+    bottom: `${(4 + depth * 38).toFixed(2)}%`,
+    '--grow': `${(1.15 - depth * 0.5).toFixed(3)}`,
+    '--haze': `${(1 - depth * 0.3).toFixed(3)}`,
+    '--sway': `${(random() * 2 - 1).toFixed(2)}`,
+    animationDelay: `${(index % 9) * 0.09}s`,
   } as CSSProperties;
 }
 
@@ -51,6 +58,7 @@ export function BlessingGarden() {
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [loadFailed, setLoadFailed] = useState(false);
+  const [justPlanted, setJustPlanted] = useState<string | null>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -92,6 +100,7 @@ export function BlessingGarden() {
     try {
       const saved = await blessingService.add({ name, message: trimmed, honeypot });
       setBlessings((current) => [...current, saved]);
+      setJustPlanted(saved.id);
       setName('');
       setMessage('');
       setStatus('sent');
@@ -110,21 +119,35 @@ export function BlessingGarden() {
       id="blessings"
       eyebrow="The blessing garden"
       title="Leave Us a Little Love"
-      lead="A wish, a memory, a piece of advice — leave something here for us to carry into this new chapter. Every message becomes a jasmine in the garden below."
+      lead="A wish, a memory, a piece of advice — leave something here for us to carry into this new chapter. Every message plants a flower in the garden below."
     >
       <div className="garden">
         <div
           className={`garden__field ${reducedMotion ? 'garden__field--still' : ''}`}
           aria-hidden="true"
         >
-          <div className="garden__horizon" />
+          <div className="garden__sky" />
+          <div className="garden__soil" />
+
+          {/* Planted before anyone arrives, so the bed is never bare earth. */}
+          <span className="garden__grass" />
+
           {ordered.slice(0, MAX_BLOOMS).map((blessing, index) => (
-            <span key={blessing.id} className="garden__bloom" style={bloomStyle(index)}>
-              <Jasmine size={22} />
+            <span
+              key={blessing.id}
+              className={`garden__plant ${blessing.id === justPlanted ? 'is-new' : ''}`}
+              style={plant(index)}
+            >
+              <GardenFlower kind={index + blessing.message.length} flip={index % 2 === 1} />
+              {blessing.name && <span className="garden__tag">{blessing.name}</span>}
             </span>
           ))}
+
           {!loading && ordered.length === 0 && (
-            <p className="garden__empty">The garden is waiting for its first bloom.</p>
+            <p className="garden__empty">
+              Nothing has been planted yet.
+              <span>The first flower is yours.</span>
+            </p>
           )}
         </div>
 
@@ -193,7 +216,7 @@ export function BlessingGarden() {
           </button>
 
           <p className="form-status" role="status">
-            {status === 'sent' && 'Thank you — your blessing is in the garden.'}
+            {status === 'sent' && 'Thank you — your flower is in the garden.'}
           </p>
         </form>
       </div>
