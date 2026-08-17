@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useReveal } from '../../hooks/useReveal';
+import { Mankolam, SilkBorder } from '../ornaments/Ornaments';
 
 interface SectionProps {
   id?: string;
@@ -46,6 +47,8 @@ export function Section({
         .join(' ')}
       aria-labelledby={title && id ? `${id}-title` : undefined}
     >
+      {tinted && <SilkBorder className="section__edge section__edge--top" />}
+
       <div className="shell">
         {(eyebrow || title) && (
           <header className="section__head">
@@ -55,11 +58,18 @@ export function Section({
                 {title}
               </Heading>
             )}
+            <span className="section__flourish" aria-hidden="true">
+              <Mankolam className="section__mango section__mango--left" />
+              <span className="section__flourish-rule" />
+              <Mankolam className="section__mango section__mango--right" />
+            </span>
             {lead && <p className="section__lead">{lead}</p>}
           </header>
         )}
         {children}
       </div>
+
+      {tinted && <SilkBorder className="section__edge section__edge--bottom" flip />}
     </section>
   );
 }

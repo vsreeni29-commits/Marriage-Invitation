@@ -1,7 +1,7 @@
 import { media } from '../config/media';
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { ArchOutline, Emblem, PalmFrond, PetalField } from './ornaments/Ornaments';
+import { ArchOutline, BrassLamp, Emblem, Mankolam, PalmFrond, PetalField } from './ornaments/Ornaments';
 
 /**
  * The hero.
@@ -20,6 +20,9 @@ export function Hero() {
       <div className="hero__backdrop" aria-hidden="true">
         <PalmFrond className="hero__frond hero__frond--left" />
         <PalmFrond className="hero__frond hero__frond--right" />
+        {/* Hanging brass lamps — light and welcome, in both our houses. */}
+        <BrassLamp className="hero__lamp hero__lamp--left" />
+        <BrassLamp className="hero__lamp hero__lamp--right" />
         {!reducedMotion && <PetalField count={12} />}
       </div>
 
@@ -58,7 +61,9 @@ export function Hero() {
           </p>
 
           <p className="hero__date">
+            <Mankolam className="hero__mango hero__mango--left" />
             <time dateTime={event.date}>{formattedEvent.numericDate}</time>
+            <Mankolam className="hero__mango hero__mango--right" />
           </p>
 
           <a className="btn btn--gold hero__cta" href="#invitation">

@@ -11,11 +11,13 @@ import { DateScratchReveal } from './components/DateScratchReveal';
 import { Countdown } from './components/Countdown';
 import { ReceptionDetails } from './components/ReceptionDetails';
 import { CulturalQuote } from './components/CulturalQuote';
+import { OurSong } from './components/OurSong';
 import { Venue } from './components/Venue';
 import { BlessingGarden } from './components/BlessingGarden';
 import { RSVPForm } from './components/RSVPForm';
 import { ClosingMessage } from './components/ClosingMessage';
 import { Footer } from './components/Footer';
+import { JaaliBackdrop, SilkBorder } from './components/ornaments/Ornaments';
 
 const ENTERED_KEY = 'rs:entered:v1';
 
@@ -73,6 +75,9 @@ function Invitation() {
       )}
 
       <div className={`shell-root ${entered ? 'is-entered' : ''}`} ref={shellRef}>
+        <JaaliBackdrop />
+        <SilkBorder className="page-edge page-edge--top" />
+
         <ErrorBoundary label="navigation">
           <FloatingNav />
         </ErrorBoundary>
@@ -104,6 +109,10 @@ function Invitation() {
             <CulturalQuote />
           </ErrorBoundary>
 
+          <ErrorBoundary label="song">
+            <OurSong />
+          </ErrorBoundary>
+
           <Venue />
 
           <ErrorBoundary label="blessings">
@@ -120,6 +129,7 @@ function Invitation() {
         </main>
 
         <Footer />
+        <SilkBorder className="page-edge page-edge--bottom" flip />
       </div>
     </>
   );

@@ -277,6 +277,189 @@ export const Divider = memo(function Divider({ className }: OrnamentProps) {
 });
 
 /* ------------------------------------------------------------------ *
+ * Silk border — the kasavu/Kanchipuram band, with the two traditions
+ * alternating along it.
+ *
+ * A row of temple triangles (kumbam) is the single most recognisable
+ * edge in South Indian textile, from a Kerala kasavu mundu to a
+ * Kanchipuram sari. Setting an eight-point star between every pair puts
+ * both heritages into one woven band rather than side by side.
+ * ------------------------------------------------------------------ */
+
+interface SilkBorderProps {
+  className?: string;
+  /** Flip for the bottom edge of a section. */
+  flip?: boolean;
+  tone?: 'gold' | 'light';
+}
+
+export const SilkBorder = memo(function SilkBorder({
+  className,
+  flip = false,
+  tone = 'gold',
+}: SilkBorderProps) {
+  const id = `silk-${tone}`;
+  const ink = tone === 'gold' ? '#96742f' : '#ddc79a';
+  const accent = tone === 'gold' ? '#5e1f27' : '#c9a96a';
+
+  return (
+    <div
+      className={`silk-border ${flip ? 'silk-border--flip' : ''} ${className ?? ''}`}
+      aria-hidden="true"
+    >
+      {/*
+        No viewBox: the band must tile at its true size across any width,
+        not scale up to fill it.
+      */}
+      <svg width="100%" height="26" fill="none">
+        <defs>
+          <pattern id={id} width="48" height="26" patternUnits="userSpaceOnUse">
+            {/* woven ground threads */}
+            <path d="M0 2.5 H48 M0 23.5 H48" stroke={ink} strokeOpacity="0.85" strokeWidth="1" />
+            <path d="M0 5.5 H48" stroke={ink} strokeOpacity="0.4" strokeWidth="0.7" strokeDasharray="2 3" />
+
+            {/* temple triangles — kumbam */}
+            <path d="M4 8 L12 8 L8 18 Z" fill={ink} fillOpacity="0.8" />
+            <path d="M28 8 L36 8 L32 18 Z" fill={ink} fillOpacity="0.8" />
+            <circle cx="8" cy="20.5" r="1.1" fill={accent} fillOpacity="0.75" />
+            <circle cx="32" cy="20.5" r="1.1" fill={accent} fillOpacity="0.75" />
+
+            {/* geometric star between them */}
+            <g transform="translate(20 13)">
+              <path d={starPath(0, 0, 5.4, 2.6, 8, 0)} stroke={ink} strokeOpacity="0.9" strokeWidth="0.9" strokeLinejoin="round" />
+            </g>
+            <g transform="translate(44 13)">
+              <path d={starPath(0, 0, 5.4, 2.6, 8, 0)} stroke={ink} strokeOpacity="0.9" strokeWidth="0.9" strokeLinejoin="round" />
+            </g>
+          </pattern>
+        </defs>
+        <rect width="100%" height="26" fill={`url(#${id})`} />
+      </svg>
+    </div>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Mankolam — the mango/paisley of every South Indian loom.
+ * ------------------------------------------------------------------ */
+
+export const Mankolam = memo(function Mankolam({ className, weight = 1 }: OrnamentProps) {
+  return (
+    <svg className={className} viewBox="0 0 60 80" fill="none" aria-hidden="true" focusable="false">
+      {/* the mango outline, with its hooked tip */}
+      <path
+        d="M30 4 C 8 20 4 44 16 62 C 24 74 42 76 50 66 C 58 56 56 38 44 28 C 38 23 33 16 30 4 Z"
+        stroke="currentColor"
+        strokeWidth={1.3 * weight}
+        strokeLinejoin="round"
+      />
+      <path
+        d="M30 16 C 16 28 13 46 22 59 C 28 67 40 68 45 61 C 50 54 48 42 40 35"
+        stroke="currentColor"
+        strokeOpacity="0.65"
+        strokeWidth={0.9 * weight}
+      />
+      {/* seed of petals inside */}
+      <path d={petalRosettePath(32, 48, 12, 6, 0, 20)} stroke="currentColor" strokeOpacity="0.75" strokeWidth={0.8 * weight} />
+      <circle cx="32" cy="48" r="2.2" fill="currentColor" fillOpacity="0.7" />
+      {dotRing(32, 48, 20, 8, 22.5).map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="0.9" fill="currentColor" fillOpacity="0.5" />
+      ))}
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Hanging brass lamp — light, kept symbolic rather than devotional.
+ * ------------------------------------------------------------------ */
+
+export const BrassLamp = memo(function BrassLamp({ className }: OrnamentProps) {
+  return (
+    <svg className={className} viewBox="0 0 80 150" fill="none" aria-hidden="true" focusable="false">
+      {/* chain */}
+      <path d="M40 0 V34" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" />
+      {/* canopy */}
+      <path d="M28 38 Q40 28 52 38 Z" fill="currentColor" fillOpacity="0.55" />
+      <path d="M22 42 H58" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      {/* body */}
+      <path
+        d="M26 44 C 26 60 32 68 40 74 C 48 68 54 60 54 44 Z"
+        fill="currentColor"
+        fillOpacity="0.32"
+        stroke="currentColor"
+        strokeWidth="1.1"
+      />
+      {/* tiers */}
+      <path d="M18 78 Q40 62 62 78 Q40 92 18 78 Z" fill="currentColor" fillOpacity="0.4" stroke="currentColor" strokeWidth="1" />
+      <path d="M24 94 Q40 82 56 94 Q40 106 24 94 Z" fill="currentColor" fillOpacity="0.3" stroke="currentColor" strokeWidth="1" />
+      {/* wick and glow */}
+      <path d="M40 106 V116" stroke="currentColor" strokeWidth="1.2" />
+      <ellipse cx="40" cy="124" rx="5" ry="8" fill="#e8c877" fillOpacity="0.9" />
+      <ellipse cx="40" cy="126" rx="11" ry="15" fill="#e8c877" fillOpacity="0.16" />
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Corner flourish — the ornate corners of a printed invitation card.
+ * ------------------------------------------------------------------ */
+
+export const CornerFlourish = memo(function CornerFlourish({ className }: OrnamentProps) {
+  return (
+    <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+      <path d="M2 2 H24 M2 2 V24" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M2 8 H16 M8 2 V16" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
+      <path
+        d="M6 30 C 6 16 16 6 30 6 C 22 12 18 18 16 26 C 24 22 30 20 38 20 C 26 26 18 34 14 44 C 12 38 10 33 6 30 Z"
+        fill="currentColor"
+        fillOpacity="0.42"
+      />
+      <path d="M30 12 q 10 -4 18 2" stroke="currentColor" strokeOpacity="0.6" strokeWidth="0.9" />
+      <path d="M12 30 q -4 10 2 18" stroke="currentColor" strokeOpacity="0.6" strokeWidth="0.9" />
+      <circle cx="34" cy="34" r="2" fill="currentColor" fillOpacity="0.7" />
+    </svg>
+  );
+});
+
+/** The four ornate corners of a printed card. Drop inside any `.card`. */
+export const CardCorners = memo(function CardCorners() {
+  return (
+    <span className="card__corners" aria-hidden="true">
+      <CornerFlourish className="card__corner card__corner--tl" />
+      <CornerFlourish className="card__corner card__corner--tr" />
+      <CornerFlourish className="card__corner card__corner--bl" />
+      <CornerFlourish className="card__corner card__corner--br" />
+    </span>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Jaali — the pierced lattice screen, used as a page-wide ground.
+ * ------------------------------------------------------------------ */
+
+export const JaaliBackdrop = memo(function JaaliBackdrop({ className }: OrnamentProps) {
+  return (
+    <div className={`jaali ${className ?? ''}`} aria-hidden="true">
+      <svg width="100%" height="100%" fill="none">
+        <defs>
+          <pattern id="jaali-tile" width="72" height="72" patternUnits="userSpaceOnUse">
+            <g stroke="#96742f" strokeOpacity="0.5" strokeWidth="0.8">
+              <path d={starPath(36, 36, 24, 13, 8, 0)} strokeLinejoin="round" />
+              <path d={polygonPath(36, 36, 13, 8, 22.5)} strokeLinejoin="round" />
+              <path d={starPath(0, 0, 24, 13, 8, 0)} strokeLinejoin="round" />
+              <path d={starPath(72, 0, 24, 13, 8, 0)} strokeLinejoin="round" />
+              <path d={starPath(0, 72, 24, 13, 8, 0)} strokeLinejoin="round" />
+              <path d={starPath(72, 72, 24, 13, 8, 0)} strokeLinejoin="round" />
+            </g>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#jaali-tile)" />
+      </svg>
+    </div>
+  );
+});
+
+/* ------------------------------------------------------------------ *
  * Drifting jasmine petals and fine gold specks.
  * ------------------------------------------------------------------ */
 

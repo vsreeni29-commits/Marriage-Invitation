@@ -36,7 +36,11 @@ body {
   overflow-x: hidden;
 }
 
-/* Handmade-paper grain + a very soft brass wash, drawn in CSS only. */
+/*
+   The ground: handloom cloth rather than paper. A fine warp-and-weft
+   weave, a brass wash from the top corners, and the whole thing warm
+   enough that gold reads as metal on it.
+*/
 body::before {
   content: '';
   position: fixed;
@@ -44,9 +48,53 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(120% 80% at 12% -10%, rgba(197, 154, 76, 0.11), transparent 60%),
-    radial-gradient(100% 70% at 92% 8%, rgba(53, 89, 74, 0.09), transparent 62%),
-    radial-gradient(120% 90% at 50% 108%, rgba(178, 102, 68, 0.08), transparent 60%);
+    repeating-linear-gradient(
+      90deg,
+      rgba(150, 116, 47, 0.032) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(94, 31, 39, 0.022) 0 1px,
+      transparent 1px 5px
+    ),
+    radial-gradient(120% 80% at 12% -10%, rgba(168, 128, 48, 0.16), transparent 60%),
+    radial-gradient(100% 70% at 92% 8%, rgba(53, 89, 74, 0.1), transparent 62%),
+    radial-gradient(120% 90% at 50% 108%, rgba(94, 31, 39, 0.1), transparent 60%);
+}
+
+/* The pierced-screen ground, sitting behind everything at a whisper. */
+.jaali {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.09;
+  pointer-events: none;
+}
+
+/* The band that runs along the very top and bottom of the invitation. */
+.page-edge {
+  position: relative;
+  z-index: 2;
+  color: var(--gold);
+}
+
+.page-edge--top {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 55;
+}
+
+/* Woven silk band, used at every section edge. */
+.silk-border {
+  width: 100%;
+  height: 26px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.silk-border--flip {
+  transform: scaleY(-1);
 }
 
 img,
@@ -178,14 +226,18 @@ a {
   padding-block: var(--space-xl);
 }
 
+/* Alternate sections sit on a deeper cloth, banded top and bottom. */
 .section--tint {
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(246, 238, 225, 0.85) 12%,
-    rgba(246, 238, 225, 0.85) 88%,
-    transparent
-  );
+  padding-block: 0;
+  background: linear-gradient(180deg, rgba(224, 203, 167, 0.55), rgba(235, 220, 192, 0.75));
+}
+
+.section--tint > .shell {
+  padding-block: var(--space-xl);
+}
+
+.section__edge {
+  color: var(--gold);
 }
 
 .section__eyebrow {
@@ -216,6 +268,37 @@ a {
   font-size: var(--step-3);
   text-align: center;
   letter-spacing: 0.005em;
+}
+
+/* Two mangoes facing a gold rule — the header of a printed invitation. */
+.section__flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: var(--space-s);
+  color: var(--gold);
+}
+
+.section__mango {
+  width: clamp(1.5rem, 5vw, 2.2rem);
+  opacity: 0.9;
+}
+
+.section__mango--right {
+  transform: scaleX(-1);
+}
+
+.section__flourish-rule {
+  width: clamp(3.5rem, 18vw, 8rem);
+  height: 5px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--gold-pale) 0 4px,
+    transparent 4px 9px
+  );
 }
 
 .section__lead {
@@ -302,14 +385,60 @@ a {
 
 /* --- Cards & frames ------------------------------------------------ */
 
+/*
+   Cards are printed invitation panels: a double gold rule, ornate
+   corners, and a ground a shade lighter than the cloth behind them.
+*/
 .card {
   position: relative;
-  padding: clamp(1.4rem, 4vw, 2.4rem);
-  background: linear-gradient(160deg, rgba(255, 253, 248, 0.96), rgba(246, 238, 225, 0.9));
-  border: 1px solid var(--rule);
+  padding: clamp(1.6rem, 4.5vw, 2.6rem);
+  background:
+    linear-gradient(160deg, rgba(253, 247, 234, 0.97), rgba(241, 228, 205, 0.94));
+  border: 1px solid var(--rule-strong);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-soft);
 }
+
+/* The inner rule that makes it read as printed rather than drawn. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--rule);
+  border-radius: calc(var(--radius-m) - 4px);
+  pointer-events: none;
+}
+
+.card--arch::before {
+  border-radius: var(--radius-arch);
+}
+
+.card__corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--gold);
+}
+
+.card__corner {
+  position: absolute;
+  width: clamp(2.1rem, 7vw, 3.2rem);
+  opacity: 0.9;
+}
+
+/*
+   An arch has no top corners to decorate — flourishes there float free of
+   the curve, so only the square bottom corners get them.
+*/
+.card--arch .card__corner--tl,
+.card--arch .card__corner--tr {
+  display: none;
+}
+
+.card__corner--tl { top: 5px; left: 5px; }
+.card__corner--tr { top: 5px; right: 5px; transform: scaleX(-1); }
+.card__corner--bl { bottom: 5px; left: 5px; transform: scaleY(-1); }
+.card__corner--br { bottom: 5px; right: 5px; transform: scale(-1); }
 
 .card--arch {
   border-radius: var(--radius-arch);
