@@ -27,7 +27,7 @@
 
 /* The last beat: the whole overlay clears to reveal the invitation. */
 .entry.is-opening {
-  animation: entry-fade 480ms var(--ease-out) 1270ms forwards;
+  animation: entry-fade 800ms var(--ease-out) 2600ms forwards;
 }
 
 @keyframes entry-fade {
@@ -42,8 +42,10 @@
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  background: radial-gradient(58% 38% at 50% 44%, rgba(255, 244, 214, 0.95), transparent 72%);
-  transition: opacity 760ms var(--ease-out) 240ms;
+  background:
+    radial-gradient(42% 26% at 50% 46%, rgba(255, 252, 240, 0.98), transparent 70%),
+    radial-gradient(85% 55% at 50% 46%, rgba(255, 236, 190, 0.85), transparent 74%);
+  transition: opacity 1500ms var(--ease-out) 900ms;
 }
 
 .entry.is-opening .entry__light {
@@ -95,7 +97,7 @@
   border-radius: 3px;
   background: linear-gradient(180deg, #fffdf7, var(--ivory));
   box-shadow: 0 10px 22px -16px rgba(42, 38, 34, 0.6);
-  transition: transform 940ms var(--ease-out) 400ms;
+  transition: transform 1700ms var(--ease-out) 1300ms;
 }
 
 .entry.is-opening .envelope__card {
@@ -152,8 +154,8 @@
   z-index: 3;
   transform-origin: 50% 0;
   transition:
-    transform 880ms var(--ease-soft),
-    z-index 0s linear 420ms;
+    transform 1700ms var(--ease-soft) 700ms,
+    z-index 0s linear 1400ms;
 }
 
 .envelope__flap-face {
@@ -178,8 +180,8 @@
   transform: translate(-50%, -50%);
   filter: drop-shadow(0 6px 10px rgba(59, 16, 21, 0.42));
   transition:
-    transform 620ms var(--ease-out),
-    opacity 520ms var(--ease-out);
+    transform 1100ms var(--ease-out) 620ms,
+    opacity 900ms var(--ease-out) 700ms;
 }
 
 .envelope__seal > svg {
@@ -188,8 +190,77 @@
 }
 
 .entry.is-opening .envelope__seal {
-  transform: translate(-50%, -50%) translateY(-30px) rotate(-19deg) scale(0.88);
+  transform: translate(-50%, -50%) translateY(-34px) rotate(-19deg) scale(0.86);
   opacity: 0;
+}
+
+/*
+   The divine beat: before anything moves, light gathers in the wax itself and
+   blooms outward. Everything after it — the seam, the flap, the card — is
+   timed to follow this, which is why the whole sequence is unhurried.
+*/
+.envelope__halo {
+  position: absolute;
+  inset: -42%;
+  z-index: -1;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 249, 232, 0.95) 8%, rgba(255, 226, 160, 0.75) 26%, transparent 62%);
+}
+
+.entry.is-opening .envelope__halo {
+  animation: halo-bloom 1500ms var(--ease-out) both;
+}
+
+@keyframes halo-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  38% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+/* A blade of light along the two edges of the flap as it lifts away. */
+.envelope__seam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 3;
+  width: 132%;
+  height: 56%;
+  opacity: 0;
+  transform: translateX(-50%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background:
+    linear-gradient(100deg, transparent 46%, rgba(255, 243, 214, 0.95) 50%, transparent 54%),
+    linear-gradient(260deg, transparent 46%, rgba(255, 243, 214, 0.95) 50%, transparent 54%),
+    radial-gradient(60% 40% at 50% 100%, rgba(255, 232, 178, 0.9), transparent 70%);
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+.entry.is-opening .envelope__seam {
+  animation: seam-blaze 1900ms var(--ease-out) 600ms both;
+}
+
+@keyframes seam-blaze {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* --- What the card says ------------------------------------------- */
@@ -316,7 +387,7 @@
      so a small screen scrolls rather than beheading the calligraphy.
   */
   align-content: safe center;
-  padding: clamp(3.5rem, 9vh, 6rem) var(--space-s) clamp(4rem, 11vh, 7rem);
+  padding: clamp(3.5rem, 9vh, 6rem) var(--space-s) clamp(8rem, 20vh, 12rem);
   overflow: hidden;
   isolation: isolate;
 }
@@ -2408,4 +2479,56 @@
 [id='countdown'],
 [id='closing'] {
   scroll-margin-top: 3.5rem;
+}
+
+/* ------------------------------------------------------------------
+   The hero garden — what the envelope opens onto
+   ------------------------------------------------------------------ */
+
+/* Evening light behind everything, so the scene has a source. */
+.hero__glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(58% 34% at 50% 26%, rgba(255, 249, 231, 0.9), transparent 70%),
+    radial-gradient(80% 40% at 50% 96%, rgba(226, 234, 223, 0.55), transparent 72%);
+  pointer-events: none;
+}
+
+.hero__bough {
+  position: absolute;
+  top: -1.5rem;
+  width: clamp(9rem, 42vw, 17rem);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.hero__bough--left {
+  left: -2.5rem;
+}
+
+.hero__bough--right {
+  right: -2.5rem;
+  transform: scaleX(-1);
+}
+
+/* The lake sits along the bottom edge, under everything the guest reads. */
+.hero__lake {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(96%, 24rem);
+  transform: translateX(-50%);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+@media (min-width: 48rem) {
+  .hero__bough {
+    top: -2.5rem;
+  }
+
+  .hero__lake {
+    width: min(70%, 30rem);
+  }
 }

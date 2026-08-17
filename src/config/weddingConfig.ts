@@ -67,7 +67,7 @@ export const weddingConfig: WeddingConfig = {
     coordinates: { lat: 12.9165, lng: 80.1918 },
   },
   site: {
-    url: 'https://vsreeni29-commits.github.io/Marriage-Invitation/',
+    url: 'https://www.rinshasreeni.com/',
     title: 'Rinsha & Sreeni | Wedding Reception · 17 September 2026',
     description:
       'Join Rinsha & Sreeni as they celebrate two traditions, two cultures and one beautiful beginning on 17 September 2026 in Chennai.',

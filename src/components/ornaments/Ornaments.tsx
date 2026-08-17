@@ -262,6 +262,142 @@ export const GardenFlower = memo(function GardenFlower({
 });
 
 /* ------------------------------------------------------------------ *
+ * The garden the invitation opens onto — a still lake, a pair of swans
+ * facing each other, and their reflections.
+ *
+ * Drawn rather than photographed: the reference this was designed from
+ * uses licensed imagery, and line-work in our own palette belongs to
+ * this invitation in a way a stock photograph never could.
+ * ------------------------------------------------------------------ */
+
+export const SwanLake = memo(function SwanLake({ className }: OrnamentProps) {
+  // One swan, facing right; the pair is this mirrored about the centre.
+  const swan = (
+    <g>
+      {/* Body: a broad hull with the tail lifted. */}
+      <path
+        d="M 6 46 C 6 34 20 27 34 27 C 46 27 56 31 61 37 C 54 33 44 32 38 34 C 48 36 55 41 57 46 C 44 50 16 51 6 46 Z"
+        fill="#fffdf6"
+        stroke="#c3a570"
+        strokeOpacity="0.5"
+        strokeWidth="0.8"
+      />
+      {/* Neck and head, curving in toward its partner. */}
+      <path
+        d="M 57 40 C 62 30 62 18 56 12 C 51 7 44 7 41 11 C 38 15 39 20 43 21"
+        fill="none"
+        stroke="#fffdf6"
+        strokeWidth="5.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 57 40 C 62 30 62 18 56 12 C 51 7 44 7 41 11 C 38 15 39 20 43 21"
+        fill="none"
+        stroke="#c3a570"
+        strokeOpacity="0.45"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+      />
+      {/* Bill and eye. */}
+      <path d="M 41.5 13 L 34 15.5 L 41 17.5 Z" fill="#c98a63" />
+      <circle cx="45" cy="13.4" r="1.15" fill="#453d34" />
+      {/* A wing line, so the body is not a blank shape. */}
+      <path
+        d="M 20 40 C 27 34 38 33 47 36"
+        fill="none"
+        stroke="#c3a570"
+        strokeOpacity="0.4"
+        strokeWidth="0.7"
+      />
+    </g>
+  );
+
+  return (
+    <svg
+      className={`swans ${className ?? ''}`}
+      viewBox="0 0 240 132"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {/* Still water, and the light lying on it. */}
+      <ellipse cx="120" cy="66" rx="120" ry="34" fill="#e7eee6" fillOpacity="0.5" />
+      <g stroke="#8fa892" strokeOpacity="0.32" strokeLinecap="round" strokeWidth="0.8">
+        <path d="M 24 74 H 78" />
+        <path d="M 150 79 H 214" />
+        <path d="M 62 86 H 122" />
+        <path d="M 138 92 H 182" />
+      </g>
+
+      {/* The pair, facing one another across the centre line. */}
+      <g transform="translate(52 4)">{swan}</g>
+      <g transform="translate(188 4) scale(-1 1)">{swan}</g>
+
+      {/* Their reflections, softened and inverted. */}
+      <g opacity="0.22">
+        <g transform="translate(52 128) scale(1 -1)">{swan}</g>
+        <g transform="translate(188 128) scale(-1 -1)">{swan}</g>
+      </g>
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * A bough of leaves and small blooms, for the corners of the arch.
+ * ------------------------------------------------------------------ */
+
+export const GardenBough = memo(function GardenBough({ className }: OrnamentProps) {
+  const rand = seeded(31);
+  const leaves = Array.from({ length: 13 }, (_, i) => {
+    const t = i / 12;
+    const x = 6 + t * 104;
+    const y = 96 - t * 78 - Math.sin(t * Math.PI) * 12;
+    const side = i % 2 === 0 ? 1 : -1;
+    const size = 7 + rand() * 5;
+    const tilt = -34 * side + (rand() * 18 - 9);
+    return { x, y, side, size, tilt, bloom: i % 4 === 1 };
+  });
+
+  return (
+    <svg
+      className={`bough ${className ?? ''}`}
+      viewBox="0 0 120 104"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M 4 100 C 34 92 66 66 84 40 C 96 23 106 12 116 6"
+        stroke="#6d8b74"
+        strokeOpacity="0.55"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      {leaves.map((leaf, i) => (
+        <g key={i} transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.tilt.toFixed(1)})`}>
+          <ellipse
+            rx={(leaf.size * 0.42).toFixed(1)}
+            ry={leaf.size.toFixed(1)}
+            fill="#6d8b74"
+            fillOpacity={leaf.bloom ? 0.3 : 0.42}
+          />
+        </g>
+      ))}
+      {leaves
+        .filter((leaf) => leaf.bloom)
+        .map((leaf, i) => (
+          <g key={`b${i}`} transform={`translate(${(leaf.x + leaf.side * 7).toFixed(1)} ${(leaf.y - 5).toFixed(1)})`}>
+            {[0, 72, 144, 216, 288].map((a) => (
+              <ellipse key={a} cy="-2.6" rx="1.6" ry="2.8" fill="#fdf7ea" stroke="#c3a570" strokeOpacity="0.5" strokeWidth="0.4" transform={`rotate(${a})`} />
+            ))}
+            <circle r="1.1" fill="#c9a05a" />
+          </g>
+        ))}
+    </svg>
+  );
+});
+
+/* ------------------------------------------------------------------ *
  * Palm frond — Kerala.
  * ------------------------------------------------------------------ */
 

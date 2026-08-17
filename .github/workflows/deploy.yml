@@ -31,10 +31,12 @@ jobs:
 
       - name: Build
         # Served from https://<user>.github.io/Marriage-Invitation/.
-        # For a custom domain at the root, set VITE_BASE to "/" instead.
+        # Served from www.rinshasreeni.com, so the site sits at the domain
+        # root rather than under /<repo-name>/. public/CNAME tells GitHub
+        # Pages the domain; this tells Vite where the assets will live.
         run: npm run build
         env:
-          VITE_BASE: /Marriage-Invitation/
+          VITE_BASE: /
 
       - uses: actions/configure-pages@v5
 
