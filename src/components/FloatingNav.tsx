@@ -4,9 +4,7 @@ import { MusicPlayer } from './MusicPlayer';
 const LINKS = [
   { id: 'story', label: 'Our Story' },
   { id: 'date', label: 'The Date' },
-  { id: 'schedule', label: 'Schedule' },
   { id: 'venue', label: 'Venue' },
-  { id: 'notes', label: 'Dress & Gifts' },
   { id: 'blessings', label: 'Blessings' },
   { id: 'rsvp', label: 'RSVP' },
 ];

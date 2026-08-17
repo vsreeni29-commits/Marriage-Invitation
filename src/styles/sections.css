@@ -204,7 +204,6 @@
 .entry__names {
   margin-top: 0.1rem;
   font-size: var(--script-s);
-  line-height: 1.05;
 }
 
 .entry__emblem {
@@ -309,8 +308,15 @@
   position: relative;
   min-height: 100svh;
   display: grid;
-  place-items: center;
-  padding: clamp(4.5rem, 12vh, 7rem) var(--space-s) clamp(5rem, 14vh, 8rem);
+  justify-items: center;
+  /*
+     `safe` matters: the hero clips its overflow, and a centred grid whose
+     content is taller than the screen would be cut off at BOTH ends — the
+     tops of the names first. Safe alignment falls back to start instead,
+     so a small screen scrolls rather than beheading the calligraphy.
+  */
+  align-content: safe center;
+  padding: clamp(3.5rem, 9vh, 6rem) var(--space-s) clamp(4rem, 11vh, 7rem);
   overflow: hidden;
   isolation: isolate;
 }
@@ -2025,58 +2031,6 @@
 }
 
 /* ------------------------------------------------------------------
-   Our song
-   ------------------------------------------------------------------ */
-
-.our-song {
-  position: relative;
-  z-index: 1;
-  padding-block: var(--space-l);
-}
-
-.our-song__card {
-  text-align: center;
-}
-
-.our-song__title {
-  margin-top: var(--space-2xs);
-  font-size: var(--step-2);
-  color: var(--forest);
-}
-
-.our-song__meta {
-  margin-top: 0.3rem;
-  font-size: var(--step--1);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.our-song__flourish {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  margin-block: var(--space-s);
-  color: var(--gold);
-}
-
-.our-song__note {
-  max-width: 24rem;
-  margin: 0 auto var(--space-m);
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  font-style: italic;
-  color: var(--ink-soft);
-}
-
-.our-song__credit {
-  margin-top: var(--space-s);
-  font-size: var(--step--1);
-  color: var(--ink-faint);
-}
-
-/* ------------------------------------------------------------------
    Wax seal — pressed on the envelope, and again on the RSVP
    ------------------------------------------------------------------ */
 
@@ -2125,215 +2079,6 @@
 
 .tear--flip {
   transform: scaleY(-1);
-}
-
-/* ------------------------------------------------------------------
-   Schedule of events — one thread, the hours hung off it
-   ------------------------------------------------------------------ */
-
-.timeline {
-  position: relative;
-  list-style: none;
-  max-width: 34rem;
-  margin: var(--space-l) auto 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-m);
-}
-
-.timeline__thread {
-  position: absolute;
-  left: 50%;
-  top: 0.7rem;
-  bottom: 0.7rem;
-  width: 1px;
-  transform: translateX(-50%);
-  background: linear-gradient(
-    180deg,
-    transparent,
-    var(--rule) 7%,
-    var(--rule) 93%,
-    transparent
-  );
-}
-
-/* The bud walks the thread as the guest scrolls. */
-.timeline__bud {
-  position: absolute;
-  left: 50%;
-  top: calc(var(--travel, 0) * 100%);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  /* Jasmine draws its petals in currentColor. Pale gold reads as a bud against
-     the parchment; ivory would disappear into it. */
-  color: #e6d2a6;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--ivory) 46%, rgba(247, 239, 223, 0) 72%);
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 2px 5px rgba(150, 116, 47, 0.55));
-  transition: top 140ms linear;
-}
-
-/* The centre column is wide enough that the walking bud never sits on a word. */
-.timeline__item {
-  display: grid;
-  grid-template-columns: 1fr 2.2rem 1fr;
-  align-items: center;
-  gap: var(--space-2xs);
-}
-
-.timeline__time {
-  text-align: right;
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  letter-spacing: 0.04em;
-  color: var(--ink-faint);
-  transition: color var(--dur-mid) var(--ease-out);
-}
-
-.timeline__node {
-  justify-self: center;
-  width: 0.5rem;
-  height: 0.5rem;
-  transform: rotate(45deg);
-  background: var(--sand);
-  box-shadow: inset 0 0 0 1px var(--rule);
-  transition:
-    background var(--dur-mid) var(--ease-out),
-    box-shadow var(--dur-mid) var(--ease-out);
-}
-
-.timeline__body {
-  text-align: left;
-}
-
-.timeline__title {
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  line-height: 1.2;
-  color: var(--heading);
-}
-
-.timeline__detail {
-  margin-top: 0.15rem;
-  font-size: var(--step--1);
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-.timeline__item.is-lit .timeline__time {
-  color: var(--gold);
-}
-
-.timeline__item.is-lit .timeline__node {
-  background: var(--gold-soft);
-  box-shadow:
-    inset 0 0 0 1px var(--gold),
-    0 0 0 5px rgba(168, 128, 48, 0.12);
-}
-
-/* Reduced motion: every hour is simply lit. */
-.timeline--still .timeline__time {
-  color: var(--gold);
-}
-
-.timeline--still .timeline__node {
-  background: var(--gold-soft);
-}
-
-/* ------------------------------------------------------------------
-   Dress code & gifts
-   ------------------------------------------------------------------ */
-
-.notes {
-  display: grid;
-  gap: var(--space-m);
-  margin-top: var(--space-l);
-}
-
-.notes__card {
-  position: relative;
-  padding: var(--space-m) var(--space-s) var(--space-l);
-  text-align: center;
-}
-
-.notes__title {
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  color: var(--heading);
-}
-
-.notes__body {
-  max-width: 26rem;
-  margin: var(--space-xs) auto 0;
-  color: var(--ink-soft);
-}
-
-.notes__palette {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-s);
-  margin: var(--space-m) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.notes__swatch {
-  display: grid;
-  justify-items: center;
-  gap: 0.4rem;
-  font-size: var(--step--2);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.notes__chip {
-  width: 2.3rem;
-  height: 2.3rem;
-  border-radius: 50%;
-  box-shadow:
-    inset 0 0 0 1px rgba(42, 38, 34, 0.14),
-    0 8px 16px -12px rgba(42, 38, 34, 0.7);
-}
-
-.notes__aside {
-  margin-top: var(--space-m);
-  font-family: var(--font-display);
-  font-size: var(--step-0);
-  font-style: italic;
-  color: var(--ink-faint);
-}
-
-.notes__frond {
-  position: absolute;
-  top: -0.6rem;
-  right: -0.4rem;
-  width: 5.5rem;
-  /* Both ornaments draw in currentColor, which would otherwise be body ink. */
-  color: var(--leaf);
-  opacity: 0.42;
-  pointer-events: none;
-}
-
-.notes__bloom {
-  position: absolute;
-  top: 0.8rem;
-  right: 1rem;
-  color: var(--gold-pale);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-@media (min-width: 48rem) {
-  .notes {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
 }
 
 /* ------------------------------------------------------------------
@@ -2489,45 +2234,6 @@
   background: none;
   box-shadow: none;
   padding: 0;
-}
-
-/* ------------------------------------------------------------------
-   Venue — the live map, once it is asked for
-   ------------------------------------------------------------------ */
-
-.venue__frame {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border: 0;
-}
-
-.venue__chip {
-  position: absolute;
-  right: var(--space-xs);
-  bottom: var(--space-xs);
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  background: rgba(247, 239, 223, 0.94);
-  box-shadow: var(--shadow-soft);
-  font-size: var(--step--1);
-  letter-spacing: 0.04em;
-  color: var(--forest);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.venue__chip:hover {
-  background: var(--ivory);
-  border-color: var(--rule-strong);
-}
-
-.venue__map--live .venue__chip {
-  right: auto;
-  left: var(--space-xs);
-  top: var(--space-xs);
-  bottom: auto;
 }
 
 /* Envelope paper grain — the weave shows through the folds, not under them. */

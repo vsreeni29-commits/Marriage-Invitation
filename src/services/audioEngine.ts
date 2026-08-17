@@ -1,6 +1,10 @@
 /**
  * Background music.
  *
+ * Background is the operative word: this plays under an invitation being read,
+ * so it is paced and mixed to sit behind the page rather than in front of it —
+ * slow, sustained, percussion barely there.
+ *
  * Two sources, one interface:
  *
  *  1. A real audio file, if `media.audio.src` points at one. Drop a
@@ -294,7 +298,7 @@ class GeneratedAmbience {
     band.frequency.value = stroke === 'mid' ? 1400 : 2600;
     band.Q.value = stroke === 'mid' ? 1.6 : 3.2;
 
-    const level = stroke === 'mid' ? 0.05 : 0.028;
+    const level = stroke === 'mid' ? 0.028 : 0.016;
     const length = stroke === 'mid' ? 0.14 : 0.06;
 
     const env = this.ctx.createGain();
@@ -338,7 +342,7 @@ class GeneratedAmbience {
           semitone(pitch),
           at,
           beats * BEAT,
-          0.105,
+          0.088,
           leap ? semitone(this.lastVeenaPitch as number) : undefined,
         );
         this.lastVeenaPitch = pitch;
@@ -355,7 +359,7 @@ class GeneratedAmbience {
       const [pitch, beats] = FLUTE[this.fluteAt.index % FLUTE.length];
       const at = Math.max(this.timeAt(this.fluteAt.beat), floor);
 
-      if (pitch !== null) this.flute(semitone(pitch), at, beats * BEAT * 0.94, 0.062);
+      if (pitch !== null) this.flute(semitone(pitch), at, beats * BEAT * 0.94, 0.072);
 
       this.fluteAt.beat += beats;
       this.fluteAt.index += 1;
@@ -401,7 +405,7 @@ class GeneratedAmbience {
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(Math.max(this.master.gain.value, 0.0001), now);
-    this.master.gain.linearRampToValueAtTime(0.68, now + FADE_SECONDS);
+    this.master.gain.linearRampToValueAtTime(0.5, now + FADE_SECONDS);
   }
 
   pause() {

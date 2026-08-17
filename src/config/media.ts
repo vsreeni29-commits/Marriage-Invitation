@@ -60,33 +60,3 @@ export const media: MediaConfig = {
     credit: 'Original ambient instrumental generated in the browser for this invitation.',
   },
 };
-
-/**
- * "Our song."
- *
- * A link, not a file. Playing a commercial recording from this site would be
- * distributing it without a licence — and a DMCA notice against the repo would
- * take the invitation down with it. Linking sends guests to the rights
- * holder's own page, which is both legal and better audio.
- *
- * Set to `null` to hide the section entirely.
- */
-export interface Song {
-  title: string;
-  artist: string;
-  film?: string;
-  /** Official YouTube / Spotify / Apple Music link. */
-  url: string;
-  platform: string;
-  note?: string;
-}
-
-export const song: Song | null = {
-  title: 'Thattathin Marayathe Penne',
-  artist: 'Shaan Rahman · Vineeth Sreenivasan',
-  film: 'Thattathin Marayathu (2012)',
-  // TODO: replace with the official upload you want guests to land on.
-  url: 'https://www.youtube.com/results?search_query=Thattathin+Marayathe+Penne+official',
-  platform: 'YouTube',
-  note: 'The one that was playing the evening we decided this was it.',
-};

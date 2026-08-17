@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { formattedEvent, weddingConfig } from '../config/weddingConfig';
+import { useMusic } from '../context/MusicContext';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { Emblem, JaaliBackdrop, WaxSeal } from './ornaments/Ornaments';
 
 interface InvitationEntryProps {
-  onEnter: (withMusic: boolean) => void;
+  onEnter: () => void;
 }
 
 /** How long the envelope takes to open before the invitation takes over. */
@@ -17,13 +18,18 @@ const OPEN_MS = 1750;
  * flap falls open, light spills out of the pocket, and the card rises out of it
  * into the invitation itself.
  *
- * The music choice lives here because a browser will only start audio off a
- * real gesture — and because starting music at somebody uninvited is rude.
+ * The music choice lives here because starting music at somebody uninvited is
+ * rude. It also starts *inside* the tap handler rather than when the animation
+ * ends: mobile Safari only unlocks audio during a real gesture, and a second of
+ * envelope animation is long enough for that window to close — which is exactly
+ * how you end up with a silent invitation on an iPhone.
+ *
  * Either way it is one tap: the guest never has to sit through the animation,
  * and a guest who asks for reduced motion skips it entirely.
  */
 export function InvitationEntry({ onEnter }: InvitationEntryProps) {
   const reducedMotion = useReducedMotion();
+  const { setPlaying } = useMusic();
   const openButton = useRef<HTMLButtonElement>(null);
   const timer = useRef<number | null>(null);
   const [opening, setOpening] = useState(false);
@@ -32,14 +38,16 @@ export function InvitationEntry({ onEnter }: InvitationEntryProps) {
   const open = useCallback(
     (withMusic: boolean) => {
       if (opening) return;
+      // Synchronously, while the browser still counts this as the user's tap.
+      if (withMusic) setPlaying(true);
       if (reducedMotion) {
-        onEnter(withMusic);
+        onEnter();
         return;
       }
       setOpening(true);
-      timer.current = window.setTimeout(() => onEnter(withMusic), OPEN_MS);
+      timer.current = window.setTimeout(onEnter, OPEN_MS);
     },
-    [onEnter, opening, reducedMotion],
+    [onEnter, opening, reducedMotion, setPlaying],
   );
 
   useEffect(() => {
