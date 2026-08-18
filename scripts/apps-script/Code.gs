@@ -10,7 +10,7 @@
  */
 
 /** Must match `sharedSecret` in src/config/backend.ts. */
-const SHARED_SECRET = 'CHANGE-ME-TO-A-LONG-RANDOM-STRING';
+const SHARED_SECRET = 'rs-xygVTeslDX9AfNDBvVKs8FKjn1ZpjmDV';
 
 const RSVP_SHEET = 'RSVPs';
 const BLESSING_SHEET = 'Blessings';
