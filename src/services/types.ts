@@ -18,8 +18,22 @@ export type BlessingDraft = Omit<Blessing, 'id' | 'createdAt'> & {
   honeypot?: string;
 };
 
+/**
+ * What a read of the guest book returned.
+ *
+ * `degraded` is the important half: it means the shared book could not be
+ * reached and these are only what this device happens to remember. Without it
+ * a broken backend looks exactly like an empty garden, which is precisely how
+ * you end up with guests unable to see each other's blessings and nobody able
+ * to tell why.
+ */
+export interface BlessingList {
+  blessings: Blessing[];
+  degraded: boolean;
+}
+
 export interface BlessingService {
-  list(): Promise<Blessing[]>;
+  list(): Promise<BlessingList>;
   add(draft: BlessingDraft): Promise<Blessing>;
 }
 
