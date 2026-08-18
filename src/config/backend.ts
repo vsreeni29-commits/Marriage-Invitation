@@ -15,7 +15,8 @@
  */
 export const backend = {
   /** e.g. 'https://script.google.com/macros/s/AKfy…/exec' */
-  sheetsEndpoint: null as string | null,
+  sheetsEndpoint:
+    'https://script.google.com/macros/s/AKfycby0MWyrjsodha7fklb1oD6V5cjxrvs3eBifr6AYC_2j0Dm_NnbE3CltnCKsy4X1m6J5/exec' as string | null,
 
   /** Must match SHARED_SECRET in scripts/apps-script/Code.gs. */
   sharedSecret: 'rs-xygVTeslDX9AfNDBvVKs8FKjn1ZpjmDV',
