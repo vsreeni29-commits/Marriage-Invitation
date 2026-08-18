@@ -55,11 +55,11 @@ export function BlessingGarden() {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [loadFailed, setLoadFailed] = useState(false);
   const [justPlanted, setJustPlanted] = useState<string | null>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const trapRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -100,12 +100,35 @@ export function BlessingGarden() {
     setStatus('sending');
 
     try {
-      const saved = await blessingService.add({ name, message: trimmed, honeypot });
+      const saved = await blessingService.add({
+        name,
+        message: trimmed,
+        honeypot: trapRef.current?.value ?? '',
+      });
       setBlessings((current) => [...current, saved]);
-      setJustPlanted(saved.id);
+      // Tracked by message, not id: the re-read below replaces this guest's
+      // copy with the sheet's, which carries a different id but the same words.
+      setJustPlanted(saved.message);
       setName('');
       setMessage('');
       setStatus('sent');
+
+      // Read the guest book back now that it holds one more message. It puts
+      // everyone else's blessings on screen for a guest who has only just
+      // arrived, and it proves the round trip actually reached the sheet.
+      blessingService
+        .list()
+        .then((result) => {
+          if (result.degraded) return;
+          setBlessings((current) => {
+            const seen = new Set(result.blessings.map((item) => item.message));
+            return [...result.blessings, ...current.filter((item) => !seen.has(item.message))];
+          });
+          setLoadFailed(false);
+        })
+        .catch(() => {
+          // The blessing is saved; a failed re-read is not the guest's problem.
+        });
     } catch (submitError) {
       setStatus('idle');
       setError(
@@ -137,7 +160,7 @@ export function BlessingGarden() {
           {ordered.slice(0, MAX_BLOOMS).map((blessing, index) => (
             <span
               key={blessing.id}
-              className={`garden__plant ${blessing.id === justPlanted ? 'is-new' : ''}`}
+              className={`garden__plant ${blessing.message === justPlanted ? 'is-new' : ''}`}
               style={plant(index)}
             >
               {/* Kinds 0 and 1 only: every blessing that has been sent is a
@@ -157,16 +180,23 @@ export function BlessingGarden() {
 
         <form className="garden__form card" onSubmit={onSubmit} noValidate>
           <CardCorners />
-          {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
+          {/* Bait for bots. Hidden from sight, from screen readers and from tab
+              order — and, deliberately, nameless. A field called "website" is
+              one a password manager will happily fill in for a guest, which
+              trips the trap on a real person; there is nothing here for autofill
+              to recognise, and it is read-only so it cannot offer to try.
+              Read through a ref, because a bot that assigns to `.value` never
+              fires the event a controlled input listens for. */}
           <div className="honeypot" aria-hidden="true">
-            <label htmlFor="blessing-website">Leave this empty</label>
+            <label htmlFor="blessing-extra">Leave this empty</label>
             <input
-              id="blessing-website"
+              id="blessing-extra"
+              ref={trapRef}
               type="text"
               tabIndex={-1}
+              readOnly
               autoComplete="off"
-              value={honeypot}
-              onChange={(changeEvent) => setHoneypot(changeEvent.target.value)}
+              defaultValue=""
             />
           </div>
 

@@ -131,12 +131,12 @@ function RsvpFields({ onDone }: RsvpFieldsProps) {
   const [name, setName] = useState('');
   const [guests, setGuests] = useState(MIN_GUESTS);
   const [note, setNote] = useState('');
-  const [honeypot, setHoneypot] = useState('');
   const [errors, setErrors] = useState<{ name?: string; attending?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
+  const trapRef = useRef<HTMLInputElement>(null);
 
   const setGuestCount = (next: number) => {
     if (Number.isNaN(next)) return;
@@ -165,7 +165,7 @@ function RsvpFields({ onDone }: RsvpFieldsProps) {
         attending: attending === 'yes',
         guests: attending === 'yes' ? guests : 0,
         note,
-        honeypot,
+        honeypot: trapRef.current?.value ?? '',
       });
       onDone(saved);
     } catch (error) {
@@ -181,16 +181,23 @@ function RsvpFields({ onDone }: RsvpFieldsProps) {
 
   return (
     <form className="rsvp" onSubmit={onSubmit} noValidate>
-      {/* Bait for bots. Hidden from sight, from screen readers and from tab order. */}
+      {/* Bait for bots. Hidden from sight, from screen readers and from tab
+          order — and, deliberately, nameless. A field called "website" is one a
+          password manager will happily fill in for a guest, which trips the trap
+          on a real person and quietly loses their RSVP; there is nothing here
+          for autofill to recognise, and it is read-only so it cannot offer to
+          try. Read through a ref, because a bot that assigns to `.value` never
+          fires the event a controlled input listens for. */}
       <div className="honeypot" aria-hidden="true">
-        <label htmlFor="rsvp-website">Leave this empty</label>
+        <label htmlFor="rsvp-extra">Leave this empty</label>
         <input
-          id="rsvp-website"
+          id="rsvp-extra"
+          ref={trapRef}
           type="text"
           tabIndex={-1}
+          readOnly
           autoComplete="off"
-          value={honeypot}
-          onChange={(changeEvent) => setHoneypot(changeEvent.target.value)}
+          defaultValue=""
         />
       </div>
 
