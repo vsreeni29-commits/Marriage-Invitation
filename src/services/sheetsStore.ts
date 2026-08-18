@@ -2,6 +2,7 @@ import { backend } from '../config/backend';
 import type {
   Blessing,
   BlessingDraft,
+  BlessingList,
   BlessingService,
   Rsvp,
   RsvpDraft,
@@ -95,26 +96,82 @@ async function call(payload: Record<string, unknown>): Promise<SheetResponse> {
 
 /* ------------------------------------------------------------------ */
 
+/**
+ * Reads the guest book with a <script> tag instead of fetch.
+ *
+ * An Apps Script Web App answers a GET with a 302 to script.googleusercontent.com,
+ * and whether the CORS header survives that hop depends on the browser and on how
+ * the deployment was configured. When it does not, `fetch` fails and every guest
+ * sees only their own blessing — the shared garden quietly becomes a private one.
+ *
+ * A script tag is not subject to CORS at all, so this works wherever the endpoint
+ * is reachable. The payload is public data (the blessings are shown on the page),
+ * so nothing sensitive rides on it.
+ */
+function jsonp(url: string, timeoutMs: number): Promise<SheetResponse> {
+  return new Promise((resolve, reject) => {
+    const name = `rsBlessings${Date.now()}${Math.floor(Math.random() * 1e6)}`;
+    const script = document.createElement('script');
+
+    const cleanUp = () => {
+      window.clearTimeout(timer);
+      delete (window as unknown as Record<string, unknown>)[name];
+      script.remove();
+    };
+
+    const timer = window.setTimeout(() => {
+      cleanUp();
+      reject(new Error('jsonp timeout'));
+    }, timeoutMs);
+
+    (window as unknown as Record<string, unknown>)[name] = (data: SheetResponse) => {
+      cleanUp();
+      resolve(data);
+    };
+
+    script.src = `${url}&callback=${name}`;
+    script.onerror = () => {
+      cleanUp();
+      reject(new Error('jsonp failed'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
 export function createSheetsBlessingService(): BlessingService {
   return {
-    async list() {
+    async list(): Promise<BlessingList> {
       const mine = readLocal<Blessing[]>(LOCAL_MIRROR, []);
       const endpoint = backend.sheetsEndpoint;
-      if (!endpoint) return mine;
+      if (!endpoint) return { blessings: mine, degraded: true };
 
+      const url = `${endpoint}?secret=${encodeURIComponent(backend.sharedSecret)}`;
+
+      // Two ways in. Fetch is cleaner; JSONP is the one that survives the
+      // redirect Apps Script answers a GET with.
+      let data: SheetResponse | null = null;
       try {
-        const url = `${endpoint}?secret=${encodeURIComponent(backend.sharedSecret)}`;
         const response = await fetch(url, { redirect: 'follow' });
-        const data = (await response.json()) as SheetResponse;
-        if (!data.ok || !data.blessings) return mine;
-
-        // Anything of ours the sheet hasn't returned yet still gets shown.
-        const seen = new Set(data.blessings.map((item) => item.message));
-        return [...data.blessings, ...mine.filter((item) => !seen.has(item.message))];
+        data = (await response.json()) as SheetResponse;
       } catch {
-        // Offline or blocked — show what this device knows rather than nothing.
-        return mine;
+        try {
+          data = await jsonp(url, backend.timeoutMs);
+        } catch {
+          data = null;
+        }
       }
+
+      if (!data?.ok || !data.blessings) {
+        // Show what this device knows, but say so rather than pretending.
+        return { blessings: mine, degraded: true };
+      }
+
+      // Anything of ours the sheet hasn't returned yet still gets shown.
+      const seen = new Set(data.blessings.map((item) => item.message));
+      return {
+        blessings: [...data.blessings, ...mine.filter((item) => !seen.has(item.message))],
+        degraded: false,
+      };
     },
 
     async add(draft: BlessingDraft) {

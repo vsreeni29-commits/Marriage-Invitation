@@ -387,7 +387,10 @@
      so a small screen scrolls rather than beheading the calligraphy.
   */
   align-content: safe center;
-  padding: clamp(3.5rem, 9vh, 6rem) var(--space-s) clamp(8rem, 20vh, 12rem);
+  /* The bottom padding only has to clear the birds, which sit in the upper
+     two thirds of the lake band — not the whole band. Any more and the hero
+     outgrows the screen and takes the lake below the fold with it. */
+  padding: clamp(3rem, 8vh, 5.5rem) var(--space-s) clamp(5.5rem, 13vh, 8rem);
   overflow: hidden;
   isolation: isolate;
 }
@@ -2517,7 +2520,7 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: min(96%, 24rem);
+  width: min(96%, 26rem);
   transform: translateX(-50%);
   opacity: 0.95;
   pointer-events: none;
@@ -2528,7 +2531,47 @@
     top: -2.5rem;
   }
 
+  /* Wide enough on a large screen to read as a lake, not so wide that the
+     birds crowd the date and the button above them. */
   .hero__lake {
-    width: min(70%, 30rem);
+    width: min(78%, 38rem);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Hero on a wide screen
+
+   Stacked names and generous spacing made the hero 1150px tall inside a
+   860px window, which put the lake — the whole point of the scene —
+   entirely below the fold. On a wide screen the names sit on one line,
+   the way they would on a printed card, and everything fits.
+   ------------------------------------------------------------------ */
+
+@media (min-width: 64rem) {
+  .hero {
+    padding-bottom: clamp(9rem, 16vh, 11rem);
+  }
+
+  .hero__names {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.24em;
+    width: auto;
+    font-size: clamp(3.4rem, 5.2vw, 5.4rem);
+  }
+
+  .hero__amp {
+    font-size: 0.32em;
+    margin-block: 0;
+  }
+
+  .hero__emblem {
+    width: clamp(3.4rem, 6vw, 4.6rem);
+    margin-top: var(--space-xs);
+  }
+
+  .hero__line {
+    margin-top: var(--space-xs);
   }
 }

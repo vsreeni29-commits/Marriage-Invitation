@@ -50,6 +50,24 @@ function json_(payload) {
   );
 }
 
+/**
+ * The same payload, wrapped for a <script> tag.
+ *
+ * A Web App answers GET with a redirect, and the CORS header does not reliably
+ * survive it — when it doesn't, the site's fetch fails and every guest sees only
+ * their own blessing. Served this way there is no CORS to survive. Only used
+ * when the site asks for it with `?callback=`.
+ */
+function jsonp_(callback, payload) {
+  // The site generates this name; allow nothing that could break out of the call.
+  var safe = String(callback).replace(/[^A-Za-z0-9_$]/g, '').slice(0, 60);
+  if (!safe) return json_(payload);
+
+  return ContentService.createTextOutput(
+    safe + '(' + JSON.stringify(payload) + ');',
+  ).setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 function clean_(value, maxLength) {
   return String(value == null ? '' : value)
     .replace(/[\u0000-\u001F\u007F]/g, ' ')
@@ -62,10 +80,14 @@ function clean_(value, maxLength) {
  * ------------------------------------------------------------------ */
 
 function doGet(e) {
+  const params = (e && e.parameter) || {};
+  const reply = function (payload) {
+    return params.callback ? jsonp_(params.callback, payload) : json_(payload);
+  };
+
   try {
-    const params = (e && e.parameter) || {};
     if (params.secret !== SHARED_SECRET) {
-      return json_({ ok: false, error: 'unauthorised' });
+      return reply({ ok: false, error: 'unauthorised' });
     }
 
     const sheet = sheetFor_(BLESSING_SHEET, BLESSING_HEADERS);
@@ -86,9 +108,9 @@ function doGet(e) {
         };
       });
 
-    return json_({ ok: true, blessings: blessings });
+    return reply({ ok: true, blessings: blessings });
   } catch (error) {
-    return json_({ ok: false, error: String(error) });
+    return reply({ ok: false, error: String(error) });
   }
 }
 

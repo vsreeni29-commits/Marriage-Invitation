@@ -47,34 +47,12 @@ const newId = () =>
 const settle = <T>(value: T, ms = 420): Promise<T> =>
   new Promise((resolve) => window.setTimeout(() => resolve(value), ms));
 
-/** A few blessings so the garden is never empty when the first guest arrives. */
-const seedBlessings: Blessing[] = [
-  {
-    id: 'seed-1',
-    name: 'Ammu & family',
-    message:
-      'From Kozhikode to Chennai with all our love. May your home always be full of light and laughter.',
-    createdAt: '2026-01-04T09:12:00.000Z',
-  },
-  {
-    id: 'seed-2',
-    name: 'Karthik',
-    message: 'Two families, one celebration. Wishing you both a lifetime of easy mornings.',
-    createdAt: '2026-01-06T14:40:00.000Z',
-  },
-  {
-    id: 'seed-3',
-    name: 'Fathima',
-    message: 'May you always choose each other, gently and on purpose. So happy for you both.',
-    createdAt: '2026-01-09T18:05:00.000Z',
-  },
-];
-
 export function createLocalBlessingService(): BlessingService {
   return {
     async list() {
       const stored = safeRead<Blessing[]>(BLESSINGS_KEY, []);
-      return settle([...seedBlessings, ...stored], 260);
+      // Nothing is shared in this mode, so every read is a degraded one.
+      return settle({ blessings: stored, degraded: true }, 260);
     },
     async add(draft: BlessingDraft) {
       const message = draft.message.trim();

@@ -65,8 +65,10 @@ export function BlessingGarden() {
     let active = true;
     blessingService
       .list()
-      .then((items) => {
-        if (active) setBlessings(items);
+      .then((result) => {
+        if (!active) return;
+        setBlessings(result.blessings);
+        setLoadFailed(result.degraded);
       })
       .catch(() => {
         if (active) setLoadFailed(true);
@@ -232,7 +234,8 @@ export function BlessingGarden() {
 
         {loadFailed && (
           <p className="form-status">
-            We couldn’t load earlier messages just now — yours will still send.
+            We can’t reach the shared guest book at the moment, so this shows only what
+            was written on this device. Anything you send is still delivered.
           </p>
         )}
 

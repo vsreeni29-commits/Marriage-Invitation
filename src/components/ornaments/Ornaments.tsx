@@ -270,80 +270,103 @@ export const GardenFlower = memo(function GardenFlower({
  * this invitation in a way a stock photograph never could.
  * ------------------------------------------------------------------ */
 
-/** One half of the heart the pair's necks describe. */
-const NECK = 'M 52 40 C 43 27 46 8 57 8 C 64.5 8 67.5 13.5 64.5 19.5';
+/**
+ * One swan, facing right, standing on the waterline at y = 96.
+ *
+ * The neck traces half a heart — up and outward from the breast, over the top
+ * of the lobe, then down and inward — so that mirrored about the centre the
+ * two necks close the figure and the bills meet.
+ */
+const SWAN_BODY =
+  'M 30 60 C 44 68 42 78 52 86 C 64 94 86 96 102 93 ' +
+  'C 116 90 121 82 114 74 C 103 61 74 57 56 61 C 46 63 38 58 30 60 Z';
+
+const SWAN_NECK = 'M 114 74 C 102 56 108 30 122 30 C 133 30 137 39 131 47';
+
+const SWAN_WING =
+  'M 56 72 C 70 65 88 65 101 71 C 90 73 82 78 77 85 C 71 78 65 74 56 72 Z';
 
 export const SwanLake = memo(function SwanLake({ className }: OrnamentProps) {
-  // One swan, facing right; the pair is this mirrored about the centre.
   const swan = (
     <g>
-      {/* Body: a broad hull with the tail lifted. */}
-      <path
-        d="M 6 46 C 6 34 20 27 34 27 C 46 27 56 31 61 37 C 54 33 44 32 38 34 C 48 36 55 41 57 46 C 44 50 16 51 6 46 Z"
-        fill="#fffdf6"
-        stroke="#c3a570"
-        strokeOpacity="0.5"
-        strokeWidth="0.8"
-      />
-      {/*
-         The neck traces one half of a heart: up and outward from the body,
-         over the top of the lobe, then down and inward so the bill meets its
-         partner's at the centre. Mirrored, the two necks close the shape.
-      */}
-      <path
-        d={NECK}
-        fill="none"
-        stroke="#fffdf6"
-        strokeWidth="5.2"
-        strokeLinecap="round"
-      />
-      <path
-        d={NECK}
-        fill="none"
-        stroke="#c3a570"
-        strokeOpacity="0.45"
-        strokeWidth="0.7"
-        strokeLinecap="round"
-      />
-      {/* Bill, angled down and in to the meeting point; and the eye. */}
-      <path d="M 65.5 21.5 L 71.5 27 L 62.8 25.5 Z" fill="#c98a63" />
-      <circle cx="61.6" cy="16" r="1.15" fill="#453d34" />
-      {/* A wing line, so the body is not a blank shape. */}
-      <path
-        d="M 20 40 C 27 34 38 33 47 36"
-        fill="none"
-        stroke="#c3a570"
-        strokeOpacity="0.4"
-        strokeWidth="0.7"
-      />
+      {/* Body, then the wing folded over it. */}
+      <path d={SWAN_BODY} fill="#fffdf7" stroke="#c3a570" strokeOpacity="0.5" strokeWidth="0.9" />
+      <path d={SWAN_WING} fill="#f6ecd9" fillOpacity="0.85" stroke="#c3a570" strokeOpacity="0.4" strokeWidth="0.7" />
+
+      {/* Neck: white over a hairline, so it reads as a form and not a stroke. */}
+      <path d={SWAN_NECK} fill="none" stroke="#fffdf7" strokeWidth="5.1" strokeLinecap="round" />
+      <path d={SWAN_NECK} fill="none" stroke="#c3a570" strokeOpacity="0.42" strokeWidth="0.75" strokeLinecap="round" />
+
+      {/* Bill angled down and in, to meet its partner's at the centre. */}
+      <path d="M 132 48.5 L 137.5 54 L 129.5 52.5 Z" fill="#c98a63" />
+      <path d="M 133 49.8 L 135 51.8" stroke="#8a5a3c" strokeOpacity="0.45" strokeWidth="0.5" />
+      <circle cx="127.5" cy="41.5" r="1" fill="#3f382f" />
     </g>
   );
 
   return (
     <svg
       className={`swans ${className ?? ''}`}
-      viewBox="0 0 240 132"
+      viewBox="0 0 460 150"
       fill="none"
       aria-hidden="true"
       focusable="false"
     >
-      {/* Still water, and the light lying on it. */}
-      <ellipse cx="120" cy="66" rx="120" ry="34" fill="#e7eee6" fillOpacity="0.5" />
-      <g stroke="#8fa892" strokeOpacity="0.32" strokeLinecap="round" strokeWidth="0.8">
-        <path d="M 24 74 H 78" />
-        <path d="M 150 79 H 214" />
-        <path d="M 62 86 H 122" />
-        <path d="M 138 92 H 182" />
+      {/*
+         A wide, shallow band rather than a square: the water has to run the
+         width of the screen while staying a strip along the bottom, or the
+         birds grow tall enough to sit on top of the date and the button.
+      */}
+      <defs>
+        <linearGradient id="lake-water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#e6eee6" stopOpacity="0.85" />
+          <stop offset="45%" stopColor="#dfe8de" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#e9e4cf" stopOpacity="0.12" />
+        </linearGradient>
+        <linearGradient id="lake-fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="lake-mirror" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
+          <stop offset="70%" stopColor="#ffffff" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <mask id="lake-mirror-mask">
+          <rect x="0" y="94" width="460" height="56" fill="url(#lake-mirror)" />
+        </mask>
+      </defs>
+
+      {/* The water, and the light lying along it. */}
+      <ellipse cx="230" cy="112" rx="228" ry="36" fill="url(#lake-water)" />
+      <ellipse cx="230" cy="98" rx="150" ry="6" fill="url(#lake-fade)" />
+
+      {/* Reflections first, so the birds sit on top of them. */}
+      <g mask="url(#lake-mirror-mask)" opacity="0.45">
+        <g transform="translate(90 190) scale(1 -1)">{swan}</g>
+        <g transform="translate(370 190) scale(-1 -1)">{swan}</g>
       </g>
 
-      {/* The pair, facing one another across the centre line. */}
-      <g transform="translate(52 4)">{swan}</g>
-      <g transform="translate(188 4) scale(-1 1)">{swan}</g>
+      {/* Ripples spreading from where each bird meets the water. */}
+      <g stroke="#8fa892" strokeOpacity="0.26" fill="none" strokeLinecap="round">
+        <path d="M 118 102 C 148 106 200 106 226 102" strokeWidth="0.8" />
+        <path d="M 234 102 C 260 106 312 106 342 102" strokeWidth="0.8" />
+        <path d="M 96 112 C 140 117 196 117 232 112" strokeWidth="0.7" strokeOpacity="0.2" />
+        <path d="M 228 122 C 268 127 320 126 356 121" strokeWidth="0.7" strokeOpacity="0.15" />
+        <path d="M 30 118 H 104" strokeWidth="0.7" strokeOpacity="0.16" />
+        <path d="M 352 128 H 430" strokeWidth="0.7" strokeOpacity="0.14" />
+      </g>
 
-      {/* Their reflections, softened and inverted. */}
-      <g opacity="0.22">
-        <g transform="translate(52 128) scale(1 -1)">{swan}</g>
-        <g transform="translate(188 128) scale(-1 -1)">{swan}</g>
+      {/* The pair, meeting on the centre line. */}
+      <g transform="translate(90 0)">{swan}</g>
+      <g transform="translate(370 0) scale(-1 1)">{swan}</g>
+
+      {/* Petals resting on the water, because a garden lake is never bare. */}
+      <g fill="#f6e3d6" fillOpacity="0.9" stroke="#c3a570" strokeOpacity="0.35" strokeWidth="0.4">
+        <ellipse cx="58" cy="110" rx="4" ry="2.2" transform="rotate(-12 58 110)" />
+        <ellipse cx="404" cy="116" rx="3.6" ry="2" transform="rotate(14 404 116)" />
+        <ellipse cx="262" cy="132" rx="3.2" ry="1.8" transform="rotate(-6 262 132)" />
+        <ellipse cx="150" cy="128" rx="3" ry="1.7" transform="rotate(9 150 128)" />
       </g>
     </svg>
   );
