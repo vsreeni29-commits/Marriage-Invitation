@@ -68,6 +68,13 @@ export function RSVPForm() {
             </>
           )}
 
+          {confirmed.pending && (
+            <p className="rsvp__success-meta">
+              We couldn’t reach our guest book just now, so your answer is safe on this
+              device and will be sent the next time you open this page. Nothing more to do.
+            </p>
+          )}
+
           <p className="rsvp__success-meta">
             Recorded for {confirmed.name}. Something changed?{' '}
             <button type="button" className="btn btn--quiet" onClick={() => setConfirmed(null)}>

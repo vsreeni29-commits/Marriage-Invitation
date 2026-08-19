@@ -44,6 +44,8 @@ export interface Rsvp {
   guests: number;
   note?: string;
   createdAt: string;
+  /** Held on this device because the guest book couldn't be reached yet. */
+  pending?: boolean;
 }
 
 export type RsvpDraft = Omit<Rsvp, 'id' | 'createdAt'> & {
@@ -58,8 +60,16 @@ export interface RsvpService {
 }
 
 export class ServiceError extends Error {
-  constructor(message: string) {
+  /**
+   * True when the request never got an answer — offline, blocked, timed out,
+   * or the endpoint returned an error status. Worth trying again later.
+   * False when the backend answered and refused: retrying changes nothing.
+   */
+  readonly transport: boolean;
+
+  constructor(message: string, transport = false) {
     super(message);
     this.name = 'ServiceError';
+    this.transport = transport;
   }
 }
