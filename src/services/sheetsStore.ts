@@ -311,6 +311,10 @@ function merge(shared: Blessing[], mine: Blessing[]): Blessing[] {
 
 export function createSheetsBlessingService(): BlessingService {
   return {
+    cached(): Blessing[] {
+      return merge(readLocal<Blessing[]>(LOCAL_SHARED, []), readLocal<Blessing[]>(LOCAL_MIRROR, []));
+    },
+
     async list(): Promise<BlessingList> {
       const mine = readLocal<Blessing[]>(LOCAL_MIRROR, []);
       const endpoint = backend.sheetsEndpoint;

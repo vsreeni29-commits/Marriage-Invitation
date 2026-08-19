@@ -213,6 +213,14 @@ Two tabs appear: **RSVPs** (timestamp, name, attending, guests, note) and
 edit → New version*, which keeps the same `/exec` URL. Creating a *new*
 deployment issues a different URL and you would have to update the config.
 
+**Keeping it quick.** A Web App nobody has called for a while is cold, and the
+first guest to arrive waits several seconds while Google starts it — long
+enough that the garden reads as empty rather than slow. The site covers for
+this (it paints the last known blessings immediately and retries a slow read),
+but the cure is one trigger: **Apps Script → Triggers ⏰ → Add trigger →
+function `keepWarm`, Time-driven, Minutes timer, every 5 minutes.** Costs
+nothing, and every visitor then gets a warm script.
+
 ### Any other backend
 
 The UI talks only to the interfaces in `src/services/types.ts`, so Supabase,

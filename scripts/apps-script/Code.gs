@@ -76,6 +76,26 @@ function clean_(value, maxLength) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Keeping the lights on
+ * ------------------------------------------------------------------ */
+
+/**
+ * Does nothing, on purpose, every few minutes.
+ *
+ * A Web App that has not been called for a while is cold, and the first guest
+ * to arrive pays for starting it up — long enough that the blessing garden
+ * looks empty rather than slow. A time-driven trigger calling this keeps the
+ * project awake, so that first visitor gets the same answer as the hundredth.
+ *
+ * To switch it on: Apps Script → Triggers (the clock icon) → Add trigger →
+ * function `keepWarm`, event source *Time-driven*, *Minutes timer*, every
+ * 5 minutes. To switch it off again, delete the trigger.
+ */
+function keepWarm() {
+  SpreadsheetApp.getActiveSpreadsheet().getName();
+}
+
+/* ------------------------------------------------------------------ *
  * Reads — the blessing garden
  * ------------------------------------------------------------------ */
 
