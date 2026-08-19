@@ -50,7 +50,10 @@ const formatDate = (iso: string) => {
  */
 export function BlessingGarden() {
   const reducedMotion = useReducedMotion();
-  const [blessings, setBlessings] = useState<Blessing[]>([]);
+  // Painted from what this device already knows, on the very first render, so
+  // the garden is in bloom before the network has said anything. The read below
+  // then corrects it — usually adding whatever arrived since the last visit.
+  const [blessings, setBlessings] = useState<Blessing[]>(() => blessingService.cached());
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');

@@ -49,6 +49,9 @@ const settle = <T>(value: T, ms = 420): Promise<T> =>
 
 export function createLocalBlessingService(): BlessingService {
   return {
+    cached() {
+      return safeRead<Blessing[]>(BLESSINGS_KEY, []);
+    },
     async list() {
       const stored = safeRead<Blessing[]>(BLESSINGS_KEY, []);
       // Nothing is shared in this mode, so every read is a degraded one.

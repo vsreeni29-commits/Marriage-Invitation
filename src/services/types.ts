@@ -33,6 +33,15 @@ export interface BlessingList {
 }
 
 export interface BlessingService {
+  /**
+   * Everything this device already knows, with no waiting at all.
+   *
+   * The guest book lives behind a request that can take a while to answer, and
+   * a garden that appears several seconds after the page does reads as broken
+   * however good the excuse. So the last known answer is painted immediately
+   * and `list()` corrects it when the real one arrives.
+   */
+  cached(): Blessing[];
   list(): Promise<BlessingList>;
   add(draft: BlessingDraft): Promise<Blessing>;
 }
