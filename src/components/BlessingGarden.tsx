@@ -262,10 +262,14 @@ export function BlessingGarden() {
             : 'Blessings'}
         </h3>
 
+        {loading && ordered.length === 0 && (
+          <p className="form-status">Gathering everyone’s blessings…</p>
+        )}
+
         {loadFailed && (
           <p className="form-status">
-            We can’t reach the shared guest book at the moment, so this shows only what
-            was written on this device. Anything you send is still delivered.
+            We can’t reach the shared guest book just now, so these may not be all of
+            them. Anything you send is kept safe and delivered.
           </p>
         )}
 

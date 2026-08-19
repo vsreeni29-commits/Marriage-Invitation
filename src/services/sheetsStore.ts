@@ -29,6 +29,7 @@ import { ServiceError } from './types';
 const LOCAL_MIRROR = 'rs:sheet-mirror:v1';
 const LOCAL_RSVP = 'rs:rsvp:v1';
 const LOCAL_OUTBOX = 'rs:outbox:v1';
+const LOCAL_SHARED = 'rs:guestbook:v1';
 
 /** Enough to hold a large family's worth of answers if the endpoint is down. */
 const OUTBOX_LIMIT = 50;
@@ -244,6 +245,70 @@ function jsonp(url: string, timeoutMs: number): Promise<SheetResponse> {
   });
 }
 
+async function fetchJson(url: string, timeoutMs: number): Promise<SheetResponse | null> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { redirect: 'follow', signal: controller.signal });
+    if (!response.ok) return null;
+    return (await response.json()) as SheetResponse;
+  } catch {
+    return null;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+/** Resolves with the first answer that actually worked, or null if none did. */
+function firstOk(attempts: Promise<SheetResponse | null>[]): Promise<SheetResponse | null> {
+  return new Promise((resolve) => {
+    let outstanding = attempts.length;
+    const settle = (value: SheetResponse | null) => {
+      if (value?.ok) resolve(value);
+      else if ((outstanding -= 1) === 0) resolve(null);
+    };
+    attempts.forEach((attempt) => attempt.then(settle, () => settle(null)));
+  });
+}
+
+/**
+ * One attempt at reading the guest book, by both routes at once.
+ *
+ * A cross-origin `fetch` has to pass a CORS check on the 302 that Apps Script
+ * answers a GET with, and it does not — so JSONP is the one that usually comes
+ * back. Running them together rather than in sequence means the working route
+ * is never waiting behind the failing one's timeout.
+ */
+function readOnce(url: string, timeoutMs: number): Promise<SheetResponse | null> {
+  return firstOk([jsonp(url, timeoutMs), fetchJson(url, timeoutMs)]);
+}
+
+/**
+ * Reads the guest book, patiently.
+ *
+ * An Apps Script Web App that has not been called for a while is cold, and the
+ * first request can sit there for a long time while Google starts it up. That
+ * is why the garden looked empty until a guest sent something: the read on page
+ * load timed out against a cold script, and the read straight after a
+ * submission found it warm and returned everything at once.
+ *
+ * So: a generous first attempt, and a second one after it, because whatever
+ * woke the script up the first time has usually woken it by then.
+ */
+async function read(url: string): Promise<SheetResponse | null> {
+  const first = await readOnce(url, 15000);
+  if (first?.ok) return first;
+
+  await new Promise((resolve) => window.setTimeout(resolve, 1200));
+  return readOnce(url, 15000);
+}
+
+/** Everyone's blessings, without repeating anything this device also holds. */
+function merge(shared: Blessing[], mine: Blessing[]): Blessing[] {
+  const seen = new Set(shared.map((item) => item.message));
+  return [...shared, ...mine.filter((item) => !seen.has(item.message))];
+}
+
 export function createSheetsBlessingService(): BlessingService {
   return {
     async list(): Promise<BlessingList> {
@@ -257,27 +322,15 @@ export function createSheetsBlessingService(): BlessingService {
       void flushOutbox();
 
       const url = `${endpoint}?secret=${encodeURIComponent(backend.sharedSecret)}`;
-
-      // Two ways in. Fetch is cleaner; JSONP is the one that survives the
-      // redirect Apps Script answers a GET with.
-      let data: SheetResponse | null = null;
-      try {
-        const response = await fetch(url, { redirect: 'follow' });
-        if (!response.ok) throw new Error(`status ${response.status}`);
-        data = (await response.json()) as SheetResponse;
-      } catch {
-        try {
-          // Shorter than a write's patience: nobody should watch an empty
-          // garden for twelve seconds before being told it couldn't be read.
-          data = await jsonp(url, 7000);
-        } catch {
-          data = null;
-        }
-      }
+      const data = await read(url);
 
       if (!data?.ok || !data.blessings) {
-        // Show what this device knows, but say so rather than pretending.
-        return { blessings: mine, degraded: true };
+        // Everyone else's words, as of the last time they could be fetched.
+        // Falling back to only this device's own blessings is what made the
+        // garden look empty to a first-time visitor and private to everyone
+        // else, which is the whole thing this section is not meant to be.
+        const remembered = readLocal<Blessing[]>(LOCAL_SHARED, []);
+        return { blessings: merge(remembered, mine), degraded: true };
       }
 
       // A spreadsheet cell comes back as whatever Sheets decided it was —
@@ -285,13 +338,9 @@ export function createSheetsBlessingService(): BlessingService {
       // was read as a date. Sorting is a string compare, so both are pinned to
       // ISO here rather than trusting the shape of the cell.
       const shared = data.blessings.map((item) => ({ ...item, createdAt: toIso(item.createdAt) }));
+      writeLocal(LOCAL_SHARED, shared);
 
-      // Anything of ours the sheet hasn't returned yet still gets shown.
-      const seen = new Set(shared.map((item) => item.message));
-      return {
-        blessings: [...shared, ...mine.filter((item) => !seen.has(item.message))],
-        degraded: false,
-      };
+      return { blessings: merge(shared, mine), degraded: false };
     },
 
     async add(draft: BlessingDraft) {
